@@ -15,6 +15,7 @@ Die Tour läuft direkt im Browser, es ist keine Installation nötig. Alles steck
 | Türen öffnen/schliessen | `E` (auch die Schiebetüren zum Sitzplatz) |
 | Dollhouse-Ansicht (Dach ab) | `T` oder Knopf oben rechts |
 | Tag/Abend | `L` |
+| Einrichtungsstil wechseln | `V` oder Knöpfe «Interior style» |
 | Zu einem Raum springen | Knöpfe rechts oder Tasten `1`–`9` |
 | Maus loslassen | `Esc` |
 
@@ -36,6 +37,18 @@ Zum Testen am Computer kann `?touch=1` an die Adresse angehängt werden (`?touch
 
 In der Dollhouse-Ansicht am Computer: ziehen = drehen, Rechtsklick-Ziehen = verschieben, Mausrad = zoomen, Doppelklick auf einen Raum = dort hinstellen.
 «Plan overlay» legt die Linien des Originalgrundrisses über das 3D-Modell, um die Übereinstimmung zu prüfen.
+
+## Drei Einrichtungsstile
+
+Die Wohnung ist vollständig möbliert (Teppiche, Bilder, Lampen, Vorhänge, gedeckter Esstisch, gemachte Betten, Küche mit Steinplatte). Drei Stile lassen sich jederzeit umschalten:
+
+| Stil | Charakter |
+|---|---|
+| **Warm Luxury** | Warme Eiche, Calacatta-Marmor mit Goldadern, Messing, Bouclé und Samt in Creme, Karamell und Oliv |
+| **Nordic Light** | Gebleichte Eiche, heller Terrazzo, weisse Küche, schwarze Metallteile, Leinen und Wolle in Salbei und Taubenblau |
+| **Urban Dark** | Räuchereiche, schwarzer Marmor mit weissen Adern, matte Küche, Samt in Anthrazit und Rost, Goldakzente |
+
+Holzmaserung, Marmor, Terrazzo und Stoffe (Leinen, Bouclé, Samt, Strick, Leder) sind im Browser berechnet, es werden keine Bilddateien nachgeladen. Mit `?style=nordic` oder `?style=noir` an der Adresse startet die Tour direkt in einem anderen Stil.
 
 ## Grundlage und Annahmen
 
