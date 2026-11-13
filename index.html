@@ -521,7 +521,7 @@ for (const r of DATA.rooms){
   const ce = flatPoly(r.outer, r.holes, CEIL, false, MAT.ceiling); roofG.add(ce);
   const rf = flatPoly(r.outer, r.holes, H_SLAB, true, MAT.roof, (x, z) => [x / 3, z / 3]); roofG.add(rf);
   // wall finishes from the traced wall runs
-  const tiled = r.floor === 'tile' && r.id !== 'reduit';
+  const tiled = r.floor === 'tile' && r.id !== 'reduit' && r.id !== 'wc';     // both Reduits have painted walls, only the floor is tiled
   if (tiled) r.runs.forEach(u => wallG.add(strip(u.a, u.b, u.n, 0, 2.2, MAT.tileWall, 1.2)));
 }
 // accent walls behind the beds (nearest wall run to the bed head)
@@ -800,7 +800,38 @@ function mkShower(){ const g = new THREE.Group(); box(g, 0.9, 0.025, 1.1, 0, 0, 
   q = fp(330.0, 312.6); addF(mkWC(), q[0], q[1] + 0.0, [0, 1], [0.4, 0.6]);
   q = fp(354.4, 309.2); addF(mkVanity(0.8, 1), q[0], q[1] + 0.0, [0, 1], [0.8, 0.5]);
   q = fp(354.4, 308.0); { const m = mkMirror(0.8, 0.9); place(m, q[0], q[1] + 0.02, [0, 1], 1.25); furnG.add(m); }
-  // the small WC next to the Ankleide is used as a second Reduit (storage): no toilet, no basin
+  // the small WC next to the Ankleide is used as a second Reduit (storage): shelving along its walls instead of toilet and basin
+  { const room = roomById.wc, rr = rnd32(41), cardboard = clr(0xb89a72, .9), blue = clr(0x3b78b5, .4), green = clr(0x59a55b, .4), grey = clr(0x8c9094, .5);
+    const binMats = [MAT.fabricGrey, MAT.fabricBeige, MAT.fabricOlive, MAT.linen, cardboard, MAT.fabricDark];
+    const mkShelfUnit = (L, D, H) => {
+      const g = new THREE.Group(), levels = []; for (let y = 0.08; y < H - 0.3; y += 0.4) levels.push(y);
+      [-1, 1].forEach(s => box(g, 0.022, H, D, s * (L / 2 - 0.011), 0, 0, MAT.lacquer));               // side panels
+      box(g, L - 0.04, H, 0.008, 0, 0, -D / 2 + 0.004, MAT.white);                                    // back panel
+      levels.concat([H - 0.025]).forEach(y => box(g, L - 0.04, 0.025, D, 0, y, 0, MAT.lacquer));       // shelf boards
+      levels.forEach(y => {
+        let x = -L / 2 + 0.05; const top = y + 0.025;
+        while (x < L / 2 - 0.22){
+          const k = rr();
+          if (k < 0.12){ x += 0.08 + rr() * 0.18; continue; }                                         // gap
+          if (k < 0.52){ const w = 0.26 + rr() * 0.14, h = 0.2 + rr() * 0.12, m = binMats[Math.floor(rr() * binMats.length)]; if (x + w > L / 2 - 0.03) break;
+            const b = box(g, w, h, D - 0.07, x + w / 2, top, 0.015, m); box(g, w - 0.06, 0.012, 0.01, x + w / 2, top + h * 0.55, D / 2 - 0.045, MAT.white); x += w + 0.02; }
+          else if (k < 0.72){ const w = 0.3, n = 2 + Math.floor(rr() * 3); if (x + w > L / 2 - 0.03) break; for (let i = 0; i < n; i++) box(g, w, 0.05 + rr() * 0.02, D - 0.09, x + w / 2, top + i * 0.065, 0.01, i % 2 ? MAT.white : MAT.linen); x += w + 0.03; }
+          else if (k < 0.9){ const n = 2 + Math.floor(rr() * 2); if (x + n * 0.1 > L / 2 - 0.03) break; for (let i = 0; i < n; i++){ const m = [MAT.ceramic, blue, green, grey][Math.floor(rr() * 4)]; cyl(g, 0.038, 0.04, 0.2 + rr() * 0.08, x + 0.05 + i * 0.1, top, 0.0, m, 12); } x += n * 0.1 + 0.04; }
+          else { const w = 0.28 + rr() * 0.1; if (x + w > L / 2 - 0.03) break; box(g, w, 0.22 + rr() * 0.08, D - 0.08, x + w / 2, top, 0.01, cardboard); x += w + 0.02; }
+        }
+      });
+      for (let i = 0; i < 3; i++) box(g, 0.34, 0.2 + rr() * 0.12, D - 0.06, -L / 2 + 0.22 + i * 0.4, H, 0.0, binMats[(i * 2) % binMats.length]);   // boxes on top
+      return g;
+    };
+    const H = 2.12, runLen = u => Math.hypot(u.b[0] - u.a[0], u.b[1] - u.a[1]);
+    const shelfRuns = room.runs.filter(u => runLen(u) > 0.9).sort((p, q) => runLen(q) - runLen(p));
+    shelfRuns.forEach((u, idx) => {
+      const D = idx === 0 ? 0.28 : 0.2;                                                            // deeper unit on the long wall, shallow one opposite (the room is only 1.3 m wide)
+      const len = runLen(u), L = len - 0.06, mid = [(u.a[0] + u.b[0]) / 2 + u.n[0] * (D / 2 + 0.012), (u.a[1] + u.b[1]) / 2 + u.n[1] * (D / 2 + 0.012)];
+      const g = mkShelfUnit(L, D, H); addF(g, mid[0], mid[1], u.n, [L, D]);
+      // addF adds a collision box in the shelf's own frame; its local x axis is perpendicular to the run direction, so the run length is the "across" size
+    });
+  }
   // Reduit: washer + dryer tower and shelves
   q = fp(348.2, 294.6); { const g = new THREE.Group(); box(g, 0.6, 0.85, 0.6, 0, 0, 0, MAT.white); box(g, 0.6, 0.85, 0.6, 0, 0.87, 0, MAT.white); [0.42, 1.3].forEach(y => { const d = cyl(g, 0.2, 0.2, 0.02, 0, y, 0.3, MAT.anthracite, 24); d.rotation.x = Math.PI / 2; d.position.set(0, y, 0.3); }); addF(g, q[0], q[1], [1, 0.0], [0.6, 0.6]); }
 }
@@ -903,7 +934,7 @@ applyPreset('day');
 /* ============================================================== collision + player */
 const player = { x:0, z:0, fy:0, yaw:0, pitch:0, eye:1.62, speed:0 };
 const doorSegs = () => { const out = []; for (const s of doors){ if (s.t < 0.98){ const C = s.d.hinge, E = s.d.closed; out.push([C[0], C[1], E[0], E[1]]); } } for (const b of bayStates){ if (b.b.kind === 'door'){ out.push(b.open && b.t > 0.98 ? [...b.fixed[0], ...b.fixed[1]] : [...b.line[0], ...b.line[1]]); } else out.push([...b.line[0], ...b.line[1]]); } return out; };
-const R = 0.24;
+const R = 0.2;
 function resolve(){
   const segs = collSegs.concat(doorSegs());
   for (let it = 0; it < 4; it++) for (const s of segs){
