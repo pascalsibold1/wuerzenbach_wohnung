@@ -286,6 +286,7 @@ const unit = (x, z) => { const l = Math.hypot(x, z) || 1; return [x / l, z / l];
 const H_WALL = 3.28, H_SLAB = 3.63;                               // top of walls / top of roof slab
 // Plan: clear height 3.14 m (Korridor) vs 3.28 m (Wohnen/Essen/Küche) under one level ceiling -> the living floor sits one 14 cm step lower
 const LV = 0.14, CEIL = 3.14;
+DATA.rooms.forEach(r => { if (r.id === 'wc') r.name = 'Reduit 2'; });      // the plan's small "WC" is used as a second Reduit
 DATA.bays.forEach(b => {                                          // bays of the living room are measured from the lower floor
   if (b.id === 'S3' || b.id === 'S4'){ b.sill = -LV; b.head = 3.06; }
   if (b.id === 'N3' || b.id === 'N4'){ b.sill = 0.9 - LV; b.head = 2.4 - LV; }
@@ -799,9 +800,7 @@ function mkShower(){ const g = new THREE.Group(); box(g, 0.9, 0.025, 1.1, 0, 0, 
   q = fp(330.0, 312.6); addF(mkWC(), q[0], q[1] + 0.0, [0, 1], [0.4, 0.6]);
   q = fp(354.4, 309.2); addF(mkVanity(0.8, 1), q[0], q[1] + 0.0, [0, 1], [0.8, 0.5]);
   q = fp(354.4, 308.0); { const m = mkMirror(0.8, 0.9); place(m, q[0], q[1] + 0.02, [0, 1], 1.25); furnG.add(m); }
-  // WC
-  q = fp(420.4, 363.0); addF(mkWC(), q[0], q[1], [0, -1], [0.4, 0.6]);
-  q = fp(432.6, 335.6); { const v = mkVanity(0.31, 1); v.scale.set(1, 1, 0.8); addF(v, q[0], q[1], [-1, 0], [0.4, 0.31]); }
+  // the small WC next to the Ankleide is used as a second Reduit (storage): no toilet, no basin
   // Reduit: washer + dryer tower and shelves
   q = fp(348.2, 294.6); { const g = new THREE.Group(); box(g, 0.6, 0.85, 0.6, 0, 0, 0, MAT.white); box(g, 0.6, 0.85, 0.6, 0, 0.87, 0, MAT.white); [0.42, 1.3].forEach(y => { const d = cyl(g, 0.2, 0.2, 0.02, 0, y, 0.3, MAT.anthracite, 24); d.rotation.x = Math.PI / 2; d.position.set(0, y, 0.3); }); addF(g, q[0], q[1], [1, 0.0], [0.6, 0.6]); }
 }
@@ -981,7 +980,7 @@ const STOPS = [
   { name:'Zimmer 03', at:[506, 352], look:[1, 0.24] },
   { name:'Ankleide + Bad', at:[472, 340], look:[-1, 0.02] },
   { name:'DU/WC', at:[350, 328], look:[-1, 0] },
-  { name:'WC', at:[419, 338], look:[0, 1] },
+  { name:'Reduit 2', at:[419, 338], look:[0, 1] },
   { name:'Wohnen/Essen/Küche', at:[598, 306], look:[1, 0.1] },
   { name:'Sitzplatz', at:[652, 468], look:[0.07, -1] },
   { name:'Garten', at:[470, 478], look:[0.8, -0.5] },
