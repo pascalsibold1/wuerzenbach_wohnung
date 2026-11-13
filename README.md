@@ -18,7 +18,23 @@ Die Tour läuft direkt im Browser, es ist keine Installation nötig. Alles steck
 | Zu einem Raum springen | Knöpfe rechts oder Tasten `1`–`9` |
 | Maus loslassen | `Esc` |
 
-In der Dollhouse-Ansicht: ziehen = drehen, Rechtsklick-Ziehen = verschieben, Mausrad = zoomen, Doppelklick auf einen Raum = dort hinstellen.
+### Auf dem Handy oder Tablet
+
+Die Seite erkennt Touchgeräte automatisch und blendet Bedienelemente ein:
+
+| Aktion | Touch |
+|---|---|
+| Gehen | Joystick unten links |
+| Umsehen | irgendwo auf dem Bild wischen |
+| Schneller gehen | Knopf «Run» |
+| Türen öffnen/schliessen | Knopf «Door» (erscheint in der Nähe einer Tür) |
+| Dollhouse-Ansicht | Knopf «Dollhouse» oben rechts |
+| Raum anspringen, Tag/Abend, Vollbild | Knopf «Menu» |
+
+Im Dollhouse: ein Finger = drehen, zwei Finger = zoomen und verschieben, doppelt tippen = dort hinstellen.
+Zum Testen am Computer kann `?touch=1` an die Adresse angehängt werden (`?touch=0` schaltet die Touch-Bedienung aus).
+
+In der Dollhouse-Ansicht am Computer: ziehen = drehen, Rechtsklick-Ziehen = verschieben, Mausrad = zoomen, Doppelklick auf einen Raum = dort hinstellen.
 «Plan overlay» legt die Linien des Originalgrundrisses über das 3D-Modell, um die Übereinstimmung zu prüfen.
 
 ## Grundlage und Annahmen
