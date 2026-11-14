@@ -863,7 +863,7 @@ function prewarmStyles(){                // build the textures of the other styl
   const run = () => { if (k < steps.length){ try { steps[k++](); } catch (e) {} setTimeout(run, 400); } }; setTimeout(run, 2500);
 }
 
-/* ============================================================== furnishing: a styled, high-end interior (positions come from the plan linework) */
+﻿/* ============================================================== furnishing: a styled, high-end interior (positions come from the plan linework) */
 const emitMats = [MAT.emit];
 const mkEmit = (hex, dbl = true) => { const m = std({ color:hex, roughness:.7, emissive:0xffd9a0, emissiveIntensity:0, side:dbl ? THREE.DoubleSide : THREE.FrontSide }); emitMats.push(m); return m; };
 S.shade = mkEmit(0xf3e7d1);
@@ -1108,8 +1108,6 @@ mkKitchenRun();
   q = fp(583.9, 352.2); addF(mkTVC(1.8, .38), q[0], q[1], [.973, .2306], [1.8, .38]);
   q = fp(715.0, 377.3); addF(mkSideboardLux(3.6, .42), q[0], q[1], [-.970, -.245], [3.6, .42]);
   q = fp(642, 402.5); { const l = mkArcLamp(); place(l, q[0], q[1], [-.35, -.94]); furnG.add(l); addObb(q[0], q[1], .4, .4, [1, 0]); }
-  q = fp(721, 349); { const p = mkPlant(1.15, 1); p.position.set(q[0], 0, q[1]); furnG.add(p); addObb(q[0], q[1], .4, .4, [1, 0]); }
-  q = fp(668, 417); { const p = mkPlant(.95, 2); p.position.set(q[0], 0, q[1]); furnG.add(p); addObb(q[0], q[1], .38, .38, [1, 0]); }
   { const c2 = fp(715.0, 377.3), a = [.245, -.970], bk = [.970, .245]; [[-1.0, 0, .8, 1.0], [.05, 5, 1.1, .75], [1.05, 3, .8, 1.0]].forEach(([t, kind, w, h]) => hang(kind, w, h, c2[0] + a[0] * t + bk[0] * .21, c2[1] + a[1] * t + bk[1] * .21, [-.970, -.245], 1.25)); }
   // art on the piers between the windows
   const bay = id => DATA.bays.find(b => b.id === id);
@@ -1137,7 +1135,6 @@ function bedroom(bedPt, footDir, W, L, o = {}){
   q = fp(582.4, 264.4); addF(mkWardrobe(1.8, .6, 2.5, 3), q[0], q[1], [-.968, -.25], [1.8, .6]);
   q = fp(460.5, 321.1); addF(mkWardrobe(1.8, .6, 2.5, 4), q[0], q[1], [-.075, .997], [1.8, .6]);
   q = fp(457.7, 358.4); addF(mkWardrobe(1.8, .6, 2.5, 4), q[0], q[1], [.075, -.997], [1.8, .6]);
-  q = fp(498, 150); { const p = mkPlant(.85, 3); p.position.set(q[0], 0, q[1]); furnG.add(p); }
   q = fp(503, 398.5); addF(mkBarrelChair(), q[0], q[1], [.55, -.83], [.8, .8]);                                        // reading chair in the master bedroom
   q = fp(496, 405); { const l = mkFloorLamp(); l.position.set(q[0], 0, q[1]); furnG.add(l); addObb(q[0], q[1], .36, .36, [1, 0]); }
   // pictures above the bed heads
@@ -1174,7 +1171,6 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
   q = fp(354.4, 309.2); addF(mkVanity(.8, 1), q[0], q[1], [0, 1], [.8, .5]);
   q = fp(354.4, 308.0); { const m = mkMirror(.8, .9); place(m, q[0], q[1] + .02, [0, 1], 1.25); furnG.add(m); }
   q = fp(354, 331); { const mt = new THREE.Group(); soft(mt, .8, .03, .5, .015, 0, 0, 0, S.towel); mt.position.set(q[0], 0, q[1]); furnG.add(mt); }
-  q = fp(338, 338); { const p = mkPlant(.6, 8); p.position.set(q[0], 0, q[1]); furnG.add(p); }
   // the small WC next to the Ankleide is used as a second Reduit (storage): shelving along its walls
   { const room = roomById.wc, rr = rnd32(41), cardboard = clr(0xb89a72, .9), blue = clr(0x3b78b5, .4), green = clr(0x59a55b, .4), grey = clr(0x8c9094, .5);
     const binMats = [S.sofa, S.sofa2, S.pillowA, S.towel, cardboard, MAT.black];
@@ -1319,7 +1315,6 @@ function buildLaundryNook(){
   { const jt = wt.map.clone(), jn = wt.normal.clone(); [jt, jn].forEach(t => { t.repeat.set(2.6, 1); t.needsUpdate = true; }); const jm = std({ color:0xd6c096, map:jt, normalMap:jn, roughness:1 });
     box(g, 1.05, .016, .5, X(len / 2), 0, .64, jm).castShadow = false; [-1, 1].forEach(s => box(g, .05, .012, .5, X(len / 2) + sg * s * .55, 0, .64, std({ color:0xe6d6b4, roughness:1 })).castShadow = false); }
   // big plant in the corner next to the door (south end), botanical print on the side wall
-  { const pl = mkPlant(1.2, 9); pl.position.set(X(len - .15), 0, .8); g.add(pl); const wp = new THREE.Vector3(X(len - .15), 0, .8); g.localToWorld(wp); addObb(wp.x, wp.z, .36, .36, [1, 0]); }
   { const w = wallPlace('reduit', [358, 302], .02); hang(6, .26, .36, w.x, w.z, w.n, 1.42); }
 }
 
