@@ -40,7 +40,7 @@ In der Dollhouse-Ansicht am Computer: ziehen = drehen, Rechtsklick-Ziehen = vers
 
 ## Drei Einrichtungsstile
 
-Die Wohnung ist vollständig möbliert (Teppiche, Bilder, Lampen, Vorhänge, gedeckter Esstisch, gemachte Betten, Küche mit Steinplatte). Drei Stile lassen sich jederzeit umschalten:
+Die Wohnung ist vollständig möbliert (Teppiche, Bilder, Lampen, Vorhänge, gedeckter Esstisch, gemachte Betten, Küche mit Steinplatte, Waschnische im Reduit 1 mit Waschmaschine und Trockner nebeneinander, Arbeitsplatte, Eichenregalen mit LED-Licht und Metro-Fliesen). Drei Stile lassen sich jederzeit umschalten:
 
 | Stil | Charakter |
 |---|---|
