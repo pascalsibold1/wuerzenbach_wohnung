@@ -15,7 +15,6 @@ Die Tour läuft direkt im Browser, es ist keine Installation nötig. Alles steck
 | Türen öffnen/schliessen | `E` (auch die Schiebetüren zum Sitzplatz) |
 | Dollhouse-Ansicht (Dach ab) | `T` oder Knopf oben rechts |
 | Tag/Abend | `L` |
-| Einrichtungsstil wechseln | `V` oder Knöpfe «Interior style» |
 | Zu einem Raum springen | Knöpfe rechts oder Tasten `1`–`9` |
 | Maus loslassen | `Esc` |
 
@@ -38,17 +37,11 @@ Zum Testen am Computer kann `?touch=1` an die Adresse angehängt werden (`?touch
 In der Dollhouse-Ansicht am Computer: ziehen = drehen, Rechtsklick-Ziehen = verschieben, Mausrad = zoomen, Doppelklick auf einen Raum = dort hinstellen.
 «Plan overlay» legt die Linien des Originalgrundrisses über das 3D-Modell, um die Übereinstimmung zu prüfen.
 
-## Drei Einrichtungsstile
+## Einrichtung
 
-Die Wohnung ist vollständig möbliert (Teppiche, Bilder, Lampen, Vorhänge, gedeckter Esstisch, gemachte Betten, Küche mit Steinplatte, Waschnische im Reduit 1 mit Waschmaschine und Trockner nebeneinander, Arbeitsplatte, Eichenregalen mit LED-Licht und Metro-Fliesen). Drei Stile lassen sich jederzeit umschalten:
+Die Wohnung ist vollständig möbliert im Stil **Nordic Light**: gebleichte Eiche, heller Terrazzo, weisse Küche, schwarze Metallteile, Leinen und Wolle in Salbei und Taubenblau. Dazu gehören Teppiche, Bilder, Lampen, Vorhänge, ein gedeckter Esstisch, gemachte Betten und eine Küche mit Steinplatte. Im Reduit 1 steht eine Waschnische mit anthrazitfarbener Waschmaschine und Trockner an der Rückwand, Arbeitsplatte, Eichenregalen mit LED-Licht und Metro-Fliesen.
 
-| Stil | Charakter |
-|---|---|
-| **Warm Luxury** | Warme Eiche, Calacatta-Marmor mit Goldadern, Messing, Bouclé und Samt in Creme, Karamell und Oliv |
-| **Nordic Light** | Gebleichte Eiche, heller Terrazzo, weisse Küche, schwarze Metallteile, Leinen und Wolle in Salbei und Taubenblau |
-| **Urban Dark** | Räuchereiche, schwarzer Marmor mit weissen Adern, matte Küche, Samt in Anthrazit und Rost, Goldakzente |
-
-Holzmaserung, Marmor, Terrazzo und Stoffe (Leinen, Bouclé, Samt, Strick, Leder) sind im Browser berechnet, es werden keine Bilddateien nachgeladen. Mit `?style=nordic` oder `?style=noir` an der Adresse startet die Tour direkt in einem anderen Stil.
+Holzmaserung, Terrazzo und Stoffe (Leinen, Wolle, Leder) sind im Browser berechnet, es werden keine Bilddateien nachgeladen.
 
 ## Grundlage und Annahmen
 
