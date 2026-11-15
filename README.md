@@ -15,6 +15,7 @@ Die Tour läuft direkt im Browser, es ist keine Installation nötig. Alles steck
 | Türen öffnen/schliessen | `E` (auch die Schiebetüren zum Sitzplatz) |
 | Dollhouse-Ansicht (Dach ab) | `T` oder Knopf oben rechts |
 | Tag/Abend | `L` |
+| Sonnenstand (Datum und Uhrzeit) | Knopf «Sun study», Zeit mit `[` `]`, Datum mit `-` `=` |
 | Zu einem Raum springen | Knöpfe rechts oder Tasten `1`–`9` |
 | Maus loslassen | `Esc` |
 
@@ -36,6 +37,12 @@ Zum Testen am Computer kann `?touch=1` an die Adresse angehängt werden (`?touch
 
 In der Dollhouse-Ansicht am Computer: ziehen = drehen, Rechtsklick-Ziehen = verschieben, Mausrad = zoomen, Doppelklick auf einen Raum = dort hinstellen.
 «Plan overlay» legt die Linien des Originalgrundrisses über das 3D-Modell, um die Übereinstimmung zu prüfen.
+
+## Sonnenstand und Schattenwurf («Sun study»)
+
+Der Knopf «Sun study» öffnet zwei Regler für Datum und Uhrzeit (Luzern, 2026, Sommer- und Winterzeit berücksichtigt). Die Sonne steht dann wirklich dort, wo sie zu dieser Zeit steht, und wirft Schatten durch Fenster, Wände und Dach. Angezeigt werden Sonnenhöhe, Himmelsrichtung, Sonnenauf- und -untergang sowie der Anteil der Terrasse, der direkte Sonne bekommt. Die Schnellwahl springt auf den 21. März, 21. Juni und 21. Dezember, «Play the day» lässt den Tag ablaufen. Am besten wirkt das in der Dollhouse-Ansicht.
+
+Grenzen: Berücksichtigt sind nur die modellierten Bauteile der Wohnung, die Bäume und Hecken. Obergeschosse und Nachbarbauten fehlen im Plan. Mit «Upper floors cast shade (assumed)» lässt sich ein unsichtbarer Block aus zwei Geschossen über der Wohnung zuschalten. Das ist eine Annahme und kein Planinhalt, also keine verbindliche Aussage über die Besonnung.
 
 ## Einrichtung
 
