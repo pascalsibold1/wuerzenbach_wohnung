@@ -291,6 +291,7 @@ const DATA = JSON.parse(getSrc('scene-data'));
 { const T = DATA.terrace, a = T.ang * Math.PI / 180, nx = -Math.sin(a), nz = Math.cos(a), CUT = 9.6, f = p => p[0] * nx + p[1] * nz - CUT, out = [], P = T.poly;     // cut the paving at a slab joint, 9.6 m from the house axis
   for (let i = 0; i < P.length; i++){ const A = P[i], B = P[(i + 1) % P.length], fa = f(A), fb = f(B); if (fa <= 0) out.push(A); if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)){ const t = fa / (fa - fb); out.push([A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]); } }
   T.poly = out; }
+{ const SH = 1.5; DATA.hedges.forEach(h => h.forEach(p => { if (Math.abs(p[0] - 10.777) < 0.01) p[0] += SH; })); DATA.hedges.push([[10.777 + SH, 6.879], [10.777, 6.879]]); DATA.garden.x1 += SH; DATA.trees.forEach(t => { t.c[0] += SH; }); }     // east hedge, lawn and trees moved 1.5 m away from the dining table
 
 // Touch devices (phones, tablets) get on-screen controls. Override with ?touch=1 or ?touch=0 in the address.
 const qs = new URLSearchParams(location.search);
@@ -1227,12 +1228,12 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     [-1, 1].forEach(s => box(g, .025, .42, .025, s * .2, .45, -.2, MAT.black));                                          // back posts
     [.57, .68, .79].forEach(y => box(g, .4, .045, .018, 0, y, -.2, MAT.black)); return g; };
   // dining table, long side running away from the house
-  let c = tp(10.25, 7.15); { const t = stoneTable(1.8, .9, .75, .05); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .9, 1.8, TN); }
-  [6.55, 7.15, 7.75].forEach(s => { let q = tp(9.63, s); let ch = metalChair(); place(ch, q[0], q[1], TU); furnG.add(ch); q = tp(10.87, s); ch = metalChair(); place(ch, q[0], q[1], mTU); furnG.add(ch); });
+  let c = tp(10.3, 7.6); { const t = stoneTable(1.8, .9, .75, .05); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .9, 1.8, TN); }
+  [7.0, 7.6, 8.2].forEach(s => { let q = tp(9.68, s); let ch = metalChair(); place(ch, q[0], q[1], TU); furnG.add(ch); q = tp(10.92, s); ch = metalChair(); place(ch, q[0], q[1], mTU); furnG.add(ch); });
   // lounge: sofa, long low table in the middle and two single armchairs of the same style, all parallel to the dining table
-  c = tp(6.62, 7.15); { const sf = mkSofa(2.0, .85, { mat:S.sofa, pillows:[{ x:-.6, mat:S.pillowB }, { x:.55, mat:S.pillowB }] }); place(sf, c[0], c[1], TU); furnG.add(sf); addObb(c[0], c[1], 2.0, .85, TU); }
-  c = tp(7.65, 7.15); { const t = stoneTable(1.6, .55, .38, .04); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .55, 1.6, TN); }
-  [6.6, 7.7].forEach(s => { const q = tp(8.7, s); const ac = mkSofa(.9, .85, { mat:S.sofa, seats:1 }); place(ac, q[0], q[1], mTU); furnG.add(ac); addObb(q[0], q[1], .9, .85, mTU); });
+  c = tp(6.105, 7.6); { const sf = mkSofa(1.8, .85, { mat:S.sofa, pillows:[{ x:-.55, mat:S.pillowB }, { x:.5, mat:S.pillowB }] }); place(sf, c[0], c[1], TU); furnG.add(sf); addObb(c[0], c[1], 1.8, .85, TU); }
+  c = tp(7.06, 7.6); { const t = stoneTable(1.6, .5, .38, .04); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .5, 1.6, TN); }
+  [7.05, 8.15].forEach(s => { const q = tp(8.015, s); const ac = mkSofa(.9, .85, { mat:S.sofa, seats:1 }); place(ac, q[0], q[1], mTU); furnG.add(ac); addObb(q[0], q[1], .9, .85, mTU); });
 }
 // bench next to the entrance hub
 
