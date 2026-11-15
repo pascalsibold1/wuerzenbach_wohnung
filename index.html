@@ -1291,6 +1291,15 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(dirL[0], dirL[1]); furnG.add(g); addObb(c[0], c[1], 1.4, 2.0, dirL);
   }
 }
+// equipment cabinet in the recess: light grey, 1.20 m wide, 0.30 m deep, 1.70 m high, on the wall piece between the two windows
+{
+  const g = new THREE.Group(), GREYC = std({ color:0xc9ccce, roughness:.55 }), GREYD = std({ color:0xbcc0c2, roughness:.5 }), DK = std({ color:0x4b5053, roughness:.6 });
+  box(g, 1.16, .04, .26, 0, 0, 0, DK);                                                                                  // plinth
+  soft(g, 1.2, 1.66, .3, .008, 0, .04, 0, GREYC);                                                                       // body
+  [-1, 1].forEach(s => { soft(g, .585, 1.58, .014, .004, s * .2975, .08, .152, GREYD); box(g, .012, .5, .016, s * .04, .95, .162, MAT.chrome); });   // two doors with handle bars at the middle gap
+  [0, 1, 2, 3].forEach(i => box(g, .5, .012, .006, 0, 1.5 + i * .035, .155, DK));                                         // vent slots at the top
+  g.position.set(-6.255, .012, 2.81); furnG.add(g); addObb(-6.255, 2.81, 1.2, .3, [0, 1]);
+}
 // bench next to the entrance hub
 
 /* ---------- merge all static furniture into one mesh per material (a few dozen draw calls instead of thousands); materials stay shared, so the style switch still works ---------- */
