@@ -288,6 +288,9 @@ const THREE = await import(threeUrl);
 const rectLib = await import(URL.createObjectURL(new Blob([getSrc('src-rect').replace(/from\s*['"]three['"]/g, `from '${threeUrl}'`)], {type:'text/javascript'})));
 rectLib.RectAreaLightUniformsLib.init();
 const DATA = JSON.parse(getSrc('scene-data'));
+{ const T = DATA.terrace, a = T.ang * Math.PI / 180, nx = -Math.sin(a), nz = Math.cos(a), CUT = 9.6, f = p => p[0] * nx + p[1] * nz - CUT, out = [], P = T.poly;     // cut the paving at a slab joint, 9.6 m from the house axis
+  for (let i = 0; i < P.length; i++){ const A = P[i], B = P[(i + 1) % P.length], fa = f(A), fb = f(B); if (fa <= 0) out.push(A); if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)){ const t = fa / (fa - fb); out.push([A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]); } }
+  T.poly = out; }
 
 // Touch devices (phones, tablets) get on-screen controls. Override with ?touch=1 or ?touch=0 in the address.
 const qs = new URLSearchParams(location.search);
@@ -394,9 +397,9 @@ TEX.tile = canvasTex(1024, 1024, (g, W, H) => {                // 1.2 m: 2 x 2 t
   g.strokeStyle = '#98958f'; g.lineWidth = 5; for (let i = 0; i <= 2; i++){ g.beginPath(); g.moveTo(i * 512, 0); g.lineTo(i * 512, H); g.stroke(); g.beginPath(); g.moveTo(0, i * 512); g.lineTo(W, i * 512); g.stroke(); }
 });
 TEX.terrace = canvasTex(1024, 1024, (g, W, H) => {
-  noiseFill(g, W, H, '#8f9190', 16000, 0.12, 9, 3);
+  noiseFill(g, W, H, '#d0bf9d', 16000, 0.12, 9, 3);
   const r = rnd32(21); for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++){ const t = (r() - .5) * 14; g.fillStyle = `rgba(${t > 0 ? '255,255,255' : '0,0,0'},${Math.abs(t) / 100})`; g.fillRect(i * 512, j * 512, 512, 512); }
-  g.strokeStyle = '#5d5f5e'; g.lineWidth = 6; for (let i = 0; i <= 2; i++){ g.beginPath(); g.moveTo(i * 512, 0); g.lineTo(i * 512, H); g.stroke(); g.beginPath(); g.moveTo(0, i * 512); g.lineTo(W, i * 512); g.stroke(); }
+  g.strokeStyle = '#a39579'; g.lineWidth = 6; for (let i = 0; i <= 2; i++){ g.beginPath(); g.moveTo(i * 512, 0); g.lineTo(i * 512, H); g.stroke(); g.beginPath(); g.moveTo(0, i * 512); g.lineTo(W, i * 512); g.stroke(); }
 });
 TEX.plaster = canvasTex(512, 512, (g, W, H) => noiseFill(g, W, H, '#f3f1ec', 7000, 0.06, 4, 2));
 TEX.concrete = canvasTex(512, 512, (g, W, H) => noiseFill(g, W, H, '#c4c3be', 9000, 0.14, 8, 3));
@@ -962,7 +965,7 @@ function mkSofa(len, depth, o = {}){
   const g = new THREE.Group(), zB = -depth / 2, armW = .2, M = o.mat || S.sofa;
   [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => cyl(g, .02, .014, .13, sx * (len / 2 - .12), 0, sz * (depth / 2 - .12), MAT.brass, 10));
   soft(g, len, .2, depth, .05, 0, .11, 0, M); soft(g, len - .02, .5, .24, .09, 0, .11, zB + .12, M);
-  const ns = Math.max(2, Math.round((len - 2 * armW) / .72)), sw = (len - 2 * armW) / ns;
+  const ns = o.seats || Math.max(2, Math.round((len - 2 * armW) / .72)), sw = (len - 2 * armW) / ns;
   for (let i = 0; i < ns; i++){ const x = -len / 2 + armW + sw * (i + .5); soft(g, sw - .015, .17, depth - .26, .075, x, .29, .12, M); cushion(g, sw - .03, .42, .17, x, .4, zB + .27, M, -.16); }
   [-1, 1].forEach(s => soft(g, armW, .36, depth - .02, .08, s * (len / 2 - armW / 2), .27, 0, M));
   (o.pillows || []).forEach(p => cushion(g, p.w || .46, p.h || .42, .13, p.x, .5, zB + .45, p.mat, -.3, p.ry || 0, p.rz || 0));
@@ -1213,16 +1216,23 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
   [-.6, -.15, .35].forEach((t, i) => { const g = new THREE.Group(); soft(g, .3, 1.0, .1, .04, 0, 0, 0, cm[i]); cyl(g, .01, .01, .12, 0, .98, 0, MAT.black, 6); g.position.set(c0[0] + gd[0] * t + nS[0] * .17, 0, c0[1] + gd[1] * t + nS[1] * .17); g.position.y = .72; g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); });
   [-.55, -.3].forEach(t => { const g = new THREE.Group(); soft(g, .1, .08, .28, .035, -.07, 0, 0, S.leather); soft(g, .1, .08, .28, .035, .07, 0, 0, S.leather); g.position.set(c0[0] + gd[0] * t + nS[0] * .2, 0, c0[1] + gd[1] * t + nS[1] * .2); g.position.y = .0; g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); });
 }
-// terrace: outdoor rug, dining set, lounge, lanterns, planters
+// terrace: stone dining table with black feet and black metal chairs, lounge parallel to it, both under the cover (no rug, plants, candles or glasses)
 {
-  const q0 = fp(668, 461), rg = mkRugLux(S.rugD, 3.2, 2.3); rg.position.set(q0[0], 0, q0[1]); rg.rotation.y = -4.3 * Math.PI / 180; furnG.add(rg);
-  let q = q0; { const t = new THREE.Group(); soft(t, 1.8, .05, .9, .02, 0, .72, 0, MAT.oakDark); [-1, 1].forEach(s => box(t, .06, .72, .7, s * .75, 0, 0, MAT.black)); candlestick(t, -.3, .772, 0, .16); candlestick(t, .3, .772, 0, .16); wineGlass(t, -.65, .772, .2); wineGlass(t, .65, .772, -.2); t.rotation.y = -4.3 * Math.PI / 180; t.position.set(q[0], 0, q[1]); furnG.add(t); addObb(q[0], q[1], 1.8, .9, [1, .075]); }
-  [[-.6, -.68], [0, -.68], [.6, -.68], [-.6, .68], [0, .68], [.6, .68]].forEach(([dx, dz]) => { const ch = mkDiningChair(); place(ch, q[0] + dx, q[1] + dz, [0, dz < 0 ? 1 : -1]); furnG.add(ch); });
-  q = fp(610, 520); { const lg = mkSofa(1.9, .85, { mat:S.sofa, pillows:[{ x:-.6, mat:S.pillowA }, { x:.55, mat:S.pillowB }] }); place(lg, q[0], q[1], [.0751, -.9972]); furnG.add(lg); addObb(q[0], q[1], 1.9, .85, [0, 1]); }
-  q = fp(623, 500); { const st = mkRoundTable(.28, .42); st.position.set(q[0], 0, q[1]); furnG.add(st); candle(st, 0, .42, 0, .12, .04); }
-  q = fp(580, 495); { const p = mkPlant(1.0, 4); p.position.set(q[0], 0, q[1]); furnG.add(p); }
-  q = fp(560, 455); { const p = mkPlant(1.25, 5); p.position.set(q[0], 0, q[1]); furnG.add(p); }
-  const pl = fp(590, 452); { const g = new THREE.Group(); box(g, 1.4, .5, .4, 0, 0, 0, S.counter); for (let i = 0; i < 9; i++) sph(g, .16, -.55 + i * .14, .62 + (i % 3) * .06, 0, MAT.leaf2, 1, 1.2, 1); g.position.set(pl[0], 0, pl[1]); g.rotation.y = -4.3 * Math.PI / 180; furnG.add(g); }
+  const TU = [.99719, .07505], TN = [-.07505, .99719], mTU = [-TU[0], -TU[1]], tp = (a, s) => [a * TU[0] + s * TN[0], a * TU[1] + s * TN[1]];   // a = along the house front, s = distance from the house
+  const SAND = std({ color:0xd9c9a6, map:TEX.concrete, roughness:.78 });
+  const stoneTable = (L, W, h, th) => { const t = new THREE.Group(); soft(t, W, th, L, .008, 0, h - th, 0, SAND); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => box(t, .07, h - th, .07, sx * (W / 2 - .1), 0, sz * (L / 2 - .12), MAT.black)); return t; };
+  const metalChair = () => { const g = new THREE.Group();
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => box(g, .025, .45, .025, sx * .2, 0, sz * .19, MAT.black));
+    soft(g, .46, .025, .44, .008, 0, .45, 0, MAT.black); box(g, .38, .02, .38, 0, .3, 0, MAT.black);                   // seat and lower frame
+    [-1, 1].forEach(s => box(g, .025, .42, .025, s * .2, .45, -.2, MAT.black));                                          // back posts
+    [.57, .68, .79].forEach(y => box(g, .4, .045, .018, 0, y, -.2, MAT.black)); return g; };
+  // dining table, long side running away from the house
+  let c = tp(10.25, 7.15); { const t = stoneTable(1.8, .9, .75, .05); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .9, 1.8, TN); }
+  [6.55, 7.15, 7.75].forEach(s => { let q = tp(9.63, s); let ch = metalChair(); place(ch, q[0], q[1], TU); furnG.add(ch); q = tp(10.87, s); ch = metalChair(); place(ch, q[0], q[1], mTU); furnG.add(ch); });
+  // lounge: sofa, long low table in the middle and two single armchairs of the same style, all parallel to the dining table
+  c = tp(6.62, 7.15); { const sf = mkSofa(2.0, .85, { mat:S.sofa, pillows:[{ x:-.6, mat:S.pillowB }, { x:.55, mat:S.pillowB }] }); place(sf, c[0], c[1], TU); furnG.add(sf); addObb(c[0], c[1], 2.0, .85, TU); }
+  c = tp(7.65, 7.15); { const t = stoneTable(1.6, .55, .38, .04); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .55, 1.6, TN); }
+  [6.6, 7.7].forEach(s => { const q = tp(8.7, s); const ac = mkSofa(.9, .85, { mat:S.sofa, seats:1 }); place(ac, q[0], q[1], mTU); furnG.add(ac); addObb(q[0], q[1], .9, .85, mTU); });
 }
 // bench next to the entrance hub
 
@@ -1520,6 +1530,8 @@ function buildSunPreset(e, az){
 let sunLast = 0, sunPending = false, sunInfo = null;
 function updateSun(){
   const p = sunPos(sunState.n, sunState.min); sunInfo = p; PRESETS.sun = buildSunPreset(p.elev, p.az); applyPreset('sun');
+  const hi = ss(20, 50, p.elev); sun.shadow.normalBias = 0.03 + 0.045 * hi; sun.shadow.bias = -0.0004 - 0.0004 * hi;     // steep sun needs a bit more bias (stripes on floors otherwise)
+  renderer.shadowMap.needsUpdate = true;
   const d = sunDir(p.az, p.elev); sunSprite.visible = p.elev > -1; sunSprite.position.copy(d).multiplyScalar(380); sunSprite.material.color.set(PRESETS.sun.sunColor);
   const rs = sunRiseSet(sunState.n), up = p.elev > 0, share = up ? terraceSunShare(d) : 0; sunInfo.terrace = share;
   el('sunDateL').textContent = fmtDate(sunState.n); el('sunTimeL').textContent = fmtMin(sunState.min) + (isDST(sunState.n) ? ' CEST' : ' CET');
@@ -1531,7 +1543,7 @@ function sunOpen(on){ sunState.on = on; el('sunBox').classList.toggle('hidden', 
 function sunPlay(on){ sunState.playing = on; clearInterval(sunState.timer); el('sunPlay').textContent = on ? '❚❚ Pause' : '▶ Play the day'; el('sunPlay').classList.toggle('on', on);
   if (on) sunState.timer = setInterval(() => { sunState.min = (sunState.min + 6) % 1440; scheduleSun(); }, 80); }
 function setSun(n, min){ if (n !== undefined) sunState.n = Math.max(1, Math.min(365, Math.round(n))); if (min !== undefined) sunState.min = ((Math.round(min) % 1440) + 1440) % 1440; if (!sunState.on) sunOpen(true); else scheduleSun(); }
-function onPresetChange(name){ if (!sunReady) return; if (name !== 'sun' && sunState.on){ sunState.on = false; sunPlay(false); sunSprite.visible = false; el('sunBox').classList.add('hidden'); el('sunBtn').classList.remove('on'); } }
+function onPresetChange(name){ if (!sunReady) return; if (name !== 'sun'){ sun.shadow.normalBias = 0.03; sun.shadow.bias = -0.0004; } if (name !== 'sun' && sunState.on){ sunState.on = false; sunPlay(false); sunSprite.visible = false; el('sunBox').classList.add('hidden'); el('sunBtn').classList.remove('on'); } }
 el('sunBtn').addEventListener('click', () => sunOpen(!sunState.on));
 el('sunDate').addEventListener('input', e => setSun(+e.target.value, undefined)); el('sunTime').addEventListener('input', e => setSun(undefined, +e.target.value));
 ['sunDate', 'sunTime'].forEach(id => { el(id).addEventListener('change', e => e.target.blur()); });
