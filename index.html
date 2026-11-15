@@ -295,7 +295,7 @@ const DATA = JSON.parse(getSrc('scene-data'));
 { const T = DATA.terrace, a = T.ang * Math.PI / 180, U = [Math.cos(a), Math.sin(a)], N = [-Math.sin(a), Math.cos(a)], EXT = 1.0;
   const P = T.poly; const west = P.map((p, i) => ({ p, i })).filter(o => o.p[0] < 6).map(o => o.i); west.forEach(i => { P[i] = [P[i][0] - U[0] * EXT, P[i][1] - U[1] * EXT]; });
   const V0 = P[0], S0 = 5.86, S1 = 6.46, sOf = p => p[0] * N[0] + p[1] * N[1], aOf = p => p[0] * U[0] + p[1] * U[1], at = (aa, ss) => [aa * U[0] + ss * N[0], aa * U[1] + ss * N[1]];
-  const aW = -3.5, aE = aOf(V0);
+  const aW = -6.98, aE = aOf(V0);
   DATA.paving = [[at(aW, S0), at(aE, S0), at(aE, S1), at(aW, S1)],
                  [[-7.44, 2.65], [-4.1, 2.65], [-3.0, 3.44], [-3.39, 5.02], [-3.38, 5.63], [-7.44, 5.33]]]; }     // east hedge, lawn and trees moved 1.5 m away from the dining table
 
@@ -1243,6 +1243,30 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
   c = tp(5.965, 7.6); { const sf = mkSofa(1.8, .85, { mat:S.sofa, pillows:[{ x:-.55, mat:S.pillowB }, { x:.5, mat:S.pillowB }] }); place(sf, c[0], c[1], TU); furnG.add(sf); addObb(c[0], c[1], 1.8, .85, TU); }
   c = tp(6.89, 7.6); { const t = stoneTable(1.6, .5, .38, .04, MARB, WLEG); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .5, 1.6, TN); }
   [7.05, 8.15].forEach(s => { const q = tp(7.815, s); const ac = mkSofa(.9, .85, { mat:S.sofa, seats:1 }); place(ac, q[0], q[1], mTU); furnG.add(ac); addObb(q[0], q[1], .9, .85, mTU); });
+}
+// hot tub in the recess: 1.8 x 1.8 m, brown slatted cabinet, white acrylic rim, violet LED water, two headrests (after the MSpa reference photo)
+{
+  const TU = [.99719, .07505], TN = [-.07505, .99719], c = [-5.1 * TU[0] + 4.46 * TN[0], -5.1 * TU[1] + 4.46 * TN[1]];
+  const wt = cached('tubwood', () => buildMaps(256, (u, v, o) => { const f = (v * 6) % 1, groove = f < .05 || f > .975, gr = .93 + .035 * Math.sin(u * 6.283 * 3 + Math.floor(v * 6) * 2.3) + .025 * Math.sin(u * 6.283 * 17 + v * 40), cc = 255 * (groove ? .5 : gr); o.r = cc; o.g = cc * .92; o.b = cc * .84; o.h = groove ? 0 : .6; }, 1.6, 1));
+  const WOODT = std({ color:0x8d6d57, map:wt.map, normalMap:wt.normal, roughness:.62 }), ACR = phys({ color:0xfaf8f4, roughness:.18, clearcoat:.6, clearcoatRoughness:.12 }); envMats.push(ACR);
+  const wtex = (() => { const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d'), gr = x.createRadialGradient(128, 128, 10, 128, 128, 190); gr.addColorStop(0, '#9a70ff'); gr.addColorStop(1, '#5e34c9'); x.fillStyle = gr; x.fillRect(0, 0, 256, 256);
+    const r = rnd32(77); for (let i = 0; i < 420; i++){ const px = r() * 256, py = r() * 256, rad = 2 + r() * 7; x.fillStyle = `rgba(${200 + r() * 55},${170 + r() * 60},255,${.1 + r() * .22})`; x.beginPath(); x.arc(px, py, rad, 0, 7); x.fill(); }
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+  const WATER = new THREE.MeshBasicMaterial({ map:wtex, toneMapped:false }), LEDV = new THREE.MeshBasicMaterial({ color:0xb99bff, toneMapped:false }), PILLOW = std({ color:0x232738, roughness:.8 }), SCR = new THREE.MeshBasicMaterial({ color:0x9fd6ff, toneMapped:false });
+  const rrect = (w, r) => { const s = new THREE.Shape(), h = w / 2; s.moveTo(-h + r, -h); s.lineTo(h - r, -h); s.quadraticCurveTo(h, -h, h, -h + r); s.lineTo(h, h - r); s.quadraticCurveTo(h, h, h - r, h); s.lineTo(-h + r, h); s.quadraticCurveTo(-h, h, -h, h - r); s.lineTo(-h, -h + r); s.quadraticCurveTo(-h, -h, -h + r, -h); return s; };
+  const g = new THREE.Group();
+  soft(g, 1.78, .68, 1.78, .13, 0, 0, 0, WOODT);                                                                       // slatted cabinet
+  { const outer = rrect(1.76, .15); outer.holes.push(new THREE.Path(rrect(1.32, .1).getPoints(8)));                    // white rim with the opening
+    const rg = new THREE.ExtrudeGeometry(outer, { depth:.06, bevelEnabled:true, bevelThickness:.02, bevelSize:.02, bevelSegments:3, curveSegments:6 }); rg.rotateX(-Math.PI / 2);
+    const rim = new THREE.Mesh(rg, ACR); rim.position.y = .70; rim.castShadow = rim.receiveShadow = true; g.add(rim); }
+  [-1, 1].forEach(s => { box(g, 1.28, .1, .03, 0, .68, s * .625, ACR); box(g, .03, .1, 1.22, s * .625, .68, 0, ACR); });   // inner walls
+  const wp = new THREE.Mesh(new THREE.PlaneGeometry(1.24, 1.24), WATER); wp.rotation.x = -Math.PI / 2; wp.position.y = .695; g.add(wp);
+  [-1, 1].forEach(s => { box(g, 1.22, .012, .012, 0, .72, s * .61, LEDV); box(g, .012, .012, 1.22, s * .61, .72, 0, LEDV); });   // violet LED line under the rim
+  [-.28, .28].forEach(x => soft(g, .22, .12, .09, .04, x, .66, -.59, PILLOW));                                         // headrests on the far wall
+  box(g, .17, .015, .11, .62, .775, .62, ACR); const scr = box(g, .15, .006, .09, .62, .79, .62, SCR); scr.castShadow = false;   // control display on the rim corner
+  g.position.set(c[0], 0.012, c[1]); g.rotation.y = Math.atan2(TN[0], TN[1]); furnG.add(g); addObb(c[0], c[1], 1.8, 1.8, TN);
+  const tubLight = new THREE.PointLight(0x9a6bff, 0, 4.5, 2); tubLight.position.set(c[0], .75, c[1]); lightG.add(tubLight);
+  ledMats.push({ userData:{ apply: n => { tubLight.intensity = n === 'day' ? 0.6 : 6; } } });
 }
 // bench next to the entrance hub
 
