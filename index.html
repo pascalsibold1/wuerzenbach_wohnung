@@ -1246,7 +1246,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
 }
 // hot tub in the recess: 1.8 x 1.8 m, brown slatted cabinet, white acrylic rim, violet LED water, two headrests (after the MSpa reference photo)
 {
-  const TU = [.99719, .07505], TN = [-.07505, .99719], c = [-5.1 * TU[0] + 4.46 * TN[0], -5.1 * TU[1] + 4.46 * TN[1]];
+  const TU = [.99719, .07505], TN = [-.07505, .99719], c = [-5.4 * TU[0] + 4.46 * TN[0], -5.4 * TU[1] + 4.46 * TN[1]];
   const wt = cached('tubwood', () => buildMaps(256, (u, v, o) => { const f = (v * 6) % 1, groove = f < .05 || f > .975, gr = .93 + .035 * Math.sin(u * 6.283 * 3 + Math.floor(v * 6) * 2.3) + .025 * Math.sin(u * 6.283 * 17 + v * 40), cc = 255 * (groove ? .5 : gr); o.r = cc; o.g = cc * .92; o.b = cc * .84; o.h = groove ? 0 : .6; }, 1.6, 1));
   const WOODT = std({ color:0x8d6d57, map:wt.map, normalMap:wt.normal, roughness:.62 }), ACR = phys({ color:0xfaf8f4, roughness:.18, clearcoat:.6, clearcoatRoughness:.12 }); envMats.push(ACR);
   const wtex = (() => { const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d'), gr = x.createRadialGradient(128, 128, 10, 128, 128, 190); gr.addColorStop(0, '#9a70ff'); gr.addColorStop(1, '#5e34c9'); x.fillStyle = gr; x.fillRect(0, 0, 256, 256);
@@ -1291,14 +1291,16 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(dirL[0], dirL[1]); furnG.add(g); addObb(c[0], c[1], 1.4, 2.0, dirL);
   }
 }
-// equipment cabinet in the recess: light grey, 1.20 m wide, 0.30 m deep, 1.70 m high, on the wall piece between the two windows
+// equipment cabinet in the recess: light grey, 1.20 m wide, 0.30 m deep, 1.80 m high, in the corner against the east wall of the recess (the wall of the building)
 {
   const g = new THREE.Group(), GREYC = std({ color:0xc9ccce, roughness:.55 }), GREYD = std({ color:0xbcc0c2, roughness:.5 }), DK = std({ color:0x4b5053, roughness:.6 });
   box(g, 1.16, .04, .26, 0, 0, 0, DK);                                                                                  // plinth
-  soft(g, 1.2, 1.66, .3, .008, 0, .04, 0, GREYC);                                                                       // body
-  [-1, 1].forEach(s => { soft(g, .585, 1.58, .014, .004, s * .2975, .08, .152, GREYD); box(g, .012, .5, .016, s * .04, .95, .162, MAT.chrome); });   // two doors with handle bars at the middle gap
-  [0, 1, 2, 3].forEach(i => box(g, .5, .012, .006, 0, 1.5 + i * .035, .155, DK));                                         // vent slots at the top
-  g.position.set(-6.255, .012, 2.81); furnG.add(g); addObb(-6.255, 2.81, 1.2, .3, [0, 1]);
+  soft(g, 1.2, 1.76, .3, .008, 0, .04, 0, GREYC);                                                                       // body
+  [-1, 1].forEach(s => { soft(g, .585, 1.68, .014, .004, s * .2975, .08, .152, GREYD); box(g, .012, .5, .016, s * .04, 1.0, .162, MAT.chrome); });   // two doors with handle bars at the middle gap
+  [0, 1, 2, 3].forEach(i => box(g, .5, .012, .006, 0, 1.62 + i * .035, .155, DK));                                        // vent slots at the top
+  const P0 = [-3.32, 2.65], v = unit(-.73, 2.91), nn = [-v[1], v[0]];                                                   // building face runs from (-3.32, 2.65) to (-4.05, 5.56); nn points into the recess
+  const cx = P0[0] + v[0] * .72 + nn[0] * .15, cz = P0[1] + v[1] * .72 + nn[1] * .15;
+  g.position.set(cx, .012, cz); g.rotation.y = Math.atan2(nn[0], nn[1]); furnG.add(g); addObb(cx, cz, 1.2, .3, nn);
 }
 // bench next to the entrance hub
 
