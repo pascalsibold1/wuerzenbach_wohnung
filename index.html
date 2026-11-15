@@ -1281,13 +1281,14 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(TN[0], TN[1]); furnG.add(g); addObb(c[0], c[1], .54, .92, TN);
   }
   { // double sun lounger, flat: black metal frame and one greige mattress, at the front edge of the paving
-    const c = tp(3.9, 8.55), g = new THREE.Group();
+    const c = tp(3.3, 8.3), g = new THREE.Group(), ang = 20 * Math.PI / 180, dirL = [TN[0] * Math.cos(ang) - TU[0] * Math.sin(ang), TN[1] * Math.cos(ang) - TU[1] * Math.sin(ang)];   // foot end turned towards the right front corner of the paving
+    
     [-1, 1].forEach(sx => [-.9, .9].forEach(z => box(g, .05, .30, .05, sx * .64, 0, z, MAT.black)));
     [-1, 1].forEach(sx => box(g, .04, .04, 1.9, sx * .66, .26, 0, MAT.black));
     [-.9, .9].forEach(z => box(g, 1.32, .03, .04, 0, .26, z, MAT.black));
     soft(g, 1.4, .13, 2.0, .05, 0, .30, 0, S.sofa);
     [-.34, .34].forEach(x => { const p = soft(g, .6, .13, .38, .055, x, .43, -.74, S.pillowB); p.rotation.x = .2; });   // two pillows as head rest, on the house side
-    g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(TN[0], TN[1]); furnG.add(g); addObb(c[0], c[1], 1.4, 2.0, TN);
+    g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(dirL[0], dirL[1]); furnG.add(g); addObb(c[0], c[1], 1.4, 2.0, dirL);
   }
 }
 // bench next to the entrance hub
