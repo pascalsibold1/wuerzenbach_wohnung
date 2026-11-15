@@ -635,7 +635,7 @@ for (const b of DATA.bays){
   collSegs.push([...fp(714.4, 442), ...fp(709, 429)]);                              // closes the gap between terrace and east wall
   // trees (outside the plot, as drawn on the plan)
   const rr = rnd32(4);
-  DATA.trees.forEach(tr => {
+  DATA.trees.slice(0, 0).forEach(tr => {
     const tg = new THREE.Group(); const h = 3.2 + tr.r * 1.2;
     cyl(tg, 0.11, 0.17, h, 0, 0, 0, clr(0x5c4631, 1), 8);
     for (let i = 0; i < 7; i++){ const a = rr() * 6.28, rad = rr() * tr.r * 1.0; const s = sph(tg, tr.r * (1.0 + rr() * 0.5), Math.cos(a) * rad, h + 0.9 + rr() * tr.r * 1.3, Math.sin(a) * rad, rr() > .5 ? MAT.leaf : MAT.leaf2, 1, 0.85, 1); }
@@ -643,7 +643,7 @@ for (const b of DATA.bays){
   });
   // planters + shrubs along the facade
   const shrub = (x, z, s) => { const g2 = new THREE.Group(); for (let i = 0; i < 6; i++) sph(g2, 0.34 * s, (rr() - .5) * 0.7 * s, 0.35 * s + rr() * 0.25, (rr() - .5) * 0.7 * s, rr() > .5 ? MAT.leaf : MAT.leaf2, 1, 0.9, 1); g2.position.set(x, 0, z); outG.add(g2); };
-  [[300, 372], [320, 372], [330, 380], [340, 372], [300, 420], [310, 450], [420, 440], [440, 450], [330, 520], [460, 520], [520, 560], [560, 565], [620, 570], [690, 570]].forEach(p => { const q = fp(p[0], p[1]); shrub(q[0], q[1], 1.0 + rr() * 0.8); });
+  [[300, 372], [320, 372], [330, 380], [340, 372], [300, 420], [310, 450], [420, 440], [440, 450], [330, 520], [460, 520], [520, 560], [560, 565], [620, 570], [690, 570]].slice(0, 0).forEach(p => { const q = fp(p[0], p[1]); shrub(q[0], q[1], 1.0 + rr() * 0.8); });
 }
 
 ﻿/* ============================================================== luxury materials: procedural wood grain, stone, fabrics + three interior styles */
@@ -713,6 +713,7 @@ function genWoodGrain(){
 /* ---------- stone: veined marble (warm Calacatta, black Nero Marquina) and terrazzo ---------- */
 const MARBLE = {
   calacatta:{ base:[243, 239, 231], cloud:[226, 220, 207], vein:[146, 129, 102], vein2:[201, 189, 164], vs:0.9, s1:101, s2:102 },
+  carrara:{ base:[247, 247, 245], cloud:[233, 234, 236], vein:[150, 153, 158], vein2:[205, 207, 211], vs:0.7, s1:401, s2:402 },
   nero:{ base:[22, 23, 25], cloud:[40, 42, 45], vein:[233, 227, 214], vein2:[112, 115, 120], vs:0.85, s1:301, s2:302 },
 };
 function genMarble(kind){
@@ -1221,19 +1222,20 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
 {
   const TU = [.99719, .07505], TN = [-.07505, .99719], mTU = [-TU[0], -TU[1]], tp = (a, s) => [a * TU[0] + s * TN[0], a * TU[1] + s * TN[1]];   // a = along the house front, s = distance from the house
   const SAND = std({ color:0xd9c9a6, map:TEX.concrete, roughness:.78 });
-  const stoneTable = (L, W, h, th) => { const t = new THREE.Group(); soft(t, W, th, L, .008, 0, h - th, 0, SAND); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => box(t, .07, h - th, .07, sx * (W / 2 - .1), 0, sz * (L / 2 - .12), MAT.black)); return t; };
+  const MARB = phys({ color:0xffffff, roughness:.16, clearcoat:.45, clearcoatRoughness:.1 }); stoneApply(MARB, 'carrara'); envMats.push(MARB); const WLEG = clr(0xf3f2ee, .38, .15);   // white marble top, white metal legs
+  const stoneTable = (L, W, h, th, top = SAND, leg = MAT.black) => { const t = new THREE.Group(); soft(t, W, th, L, .008, 0, h - th, 0, top); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => box(t, .07, h - th, .07, sx * (W / 2 - .1), 0, sz * (L / 2 - .12), leg)); return t; };
   const metalChair = () => { const g = new THREE.Group();
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => box(g, .025, .45, .025, sx * .2, 0, sz * .19, MAT.black));
     soft(g, .46, .025, .44, .008, 0, .45, 0, MAT.black); box(g, .38, .02, .38, 0, .3, 0, MAT.black);                   // seat and lower frame
     [-1, 1].forEach(s => box(g, .025, .42, .025, s * .2, .45, -.2, MAT.black));                                          // back posts
     [.57, .68, .79].forEach(y => box(g, .4, .045, .018, 0, y, -.2, MAT.black)); return g; };
   // dining table, long side running away from the house
-  let c = tp(10.3, 7.6); { const t = stoneTable(1.8, .9, .75, .05); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .9, 1.8, TN); }
-  [7.0, 7.6, 8.2].forEach(s => { let q = tp(9.68, s); let ch = metalChair(); place(ch, q[0], q[1], TU); furnG.add(ch); q = tp(10.92, s); ch = metalChair(); place(ch, q[0], q[1], mTU); furnG.add(ch); });
+  let c = tp(10.15, 7.6); { const t = stoneTable(1.8, .9, .75, .05); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .9, 1.8, TN); }
+  [7.0, 7.6, 8.2].forEach(s => { let q = tp(9.43, s); let ch = metalChair(); place(ch, q[0], q[1], TU); furnG.add(ch); q = tp(10.87, s); ch = metalChair(); place(ch, q[0], q[1], mTU); furnG.add(ch); });
   // lounge: sofa, long low table in the middle and two single armchairs of the same style, all parallel to the dining table
-  c = tp(6.105, 7.6); { const sf = mkSofa(1.8, .85, { mat:S.sofa, pillows:[{ x:-.55, mat:S.pillowB }, { x:.5, mat:S.pillowB }] }); place(sf, c[0], c[1], TU); furnG.add(sf); addObb(c[0], c[1], 1.8, .85, TU); }
-  c = tp(7.06, 7.6); { const t = stoneTable(1.6, .5, .38, .04); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .5, 1.6, TN); }
-  [7.05, 8.15].forEach(s => { const q = tp(8.015, s); const ac = mkSofa(.9, .85, { mat:S.sofa, seats:1 }); place(ac, q[0], q[1], mTU); furnG.add(ac); addObb(q[0], q[1], .9, .85, mTU); });
+  c = tp(5.965, 7.6); { const sf = mkSofa(1.8, .85, { mat:S.sofa, pillows:[{ x:-.55, mat:S.pillowB }, { x:.5, mat:S.pillowB }] }); place(sf, c[0], c[1], TU); furnG.add(sf); addObb(c[0], c[1], 1.8, .85, TU); }
+  c = tp(6.89, 7.6); { const t = stoneTable(1.6, .5, .38, .04, MARB, WLEG); place(t, c[0], c[1], TN); furnG.add(t); addObb(c[0], c[1], .5, 1.6, TN); }
+  [7.05, 8.15].forEach(s => { const q = tp(7.815, s); const ac = mkSofa(.9, .85, { mat:S.sofa, seats:1 }); place(ac, q[0], q[1], mTU); furnG.add(ac); addObb(q[0], q[1], .9, .85, mTU); });
 }
 // bench next to the entrance hub
 
