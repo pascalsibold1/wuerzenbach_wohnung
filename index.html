@@ -292,7 +292,7 @@ const DATA = JSON.parse(getSrc('scene-data'));
   for (let i = 0; i < P.length; i++){ const A = P[i], B = P[(i + 1) % P.length], fa = f(A), fb = f(B); if (fa <= 0) out.push(A); if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)){ const t = fa / (fa - fb); out.push([A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]); } }
   T.poly = out; }
 { const SH = 1.5; DATA.hedges.forEach(h => h.forEach(p => { if (Math.abs(p[0] - 10.777) < 0.01) p[0] += SH; })); DATA.hedges.push([[10.777 + SH, 6.879], [10.777, 6.879]]); DATA.garden.x1 += SH; DATA.trees.forEach(t => { t.c[0] += SH; }); }
-{ const T = DATA.terrace, a = T.ang * Math.PI / 180, U = [Math.cos(a), Math.sin(a)], N = [-Math.sin(a), Math.cos(a)], EXT = 2.0;
+{ const T = DATA.terrace, a = T.ang * Math.PI / 180, U = [Math.cos(a), Math.sin(a)], N = [-Math.sin(a), Math.cos(a)], EXT = 2.5;
   const P = T.poly; const west = P.map((p, i) => ({ p, i })).filter(o => o.p[0] < 6).map(o => o.i); west.forEach(i => { P[i] = [P[i][0] - U[0] * EXT, P[i][1] - U[1] * EXT]; });
   const V0 = P[0], S0 = 5.86, S1 = 6.66, sOf = p => p[0] * N[0] + p[1] * N[1], aOf = p => p[0] * U[0] + p[1] * U[1], at = (aa, ss) => [aa * U[0] + ss * N[0], aa * U[1] + ss * N[1]];
   const aW = -6.98, aE = aOf(V0);
@@ -1281,7 +1281,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(TN[0], TN[1]); furnG.add(g); addObb(c[0], c[1], .54, .92, TN);
   }
   { // double sun lounger, flat: black metal frame and one greige mattress, at the front edge of the paving
-    const c = tp(3.3, 8.3), g = new THREE.Group(), ang = 20 * Math.PI / 180, dirL = [TN[0] * Math.cos(ang) - TU[0] * Math.sin(ang), TN[1] * Math.cos(ang) - TU[1] * Math.sin(ang)];   // foot end turned towards the right front corner of the paving
+    const c = tp(2.8, 8.3), g = new THREE.Group(), ang = 20 * Math.PI / 180, dirL = [TN[0] * Math.cos(ang) - TU[0] * Math.sin(ang), TN[1] * Math.cos(ang) - TU[1] * Math.sin(ang)];   // foot end turned towards the right front corner of the paving
     
     [-1, 1].forEach(sx => [-.9, .9].forEach(z => box(g, .05, .30, .05, sx * .64, 0, z, MAT.black)));
     [-1, 1].forEach(sx => box(g, .04, .04, 1.9, sx * .66, .26, 0, MAT.black));
@@ -1290,6 +1290,16 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     [-.34, .34].forEach(x => { const p = soft(g, .6, .13, .38, .055, x, .43, -.74, S.pillowB); p.rotation.x = .2; });   // two pillows as head rest, on the house side
     g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(dirL[0], dirL[1]); furnG.add(g); addObb(c[0], c[1], 1.4, 2.0, dirL);
   }
+}
+// terrace planting: one rectangular planter between sun lounger and lounge, four round pots along the front edge of the paving
+{
+  const TU = [.99719, .07505], TN = [-.07505, .99719], tp = (a, s) => [a * TU[0] + s * TN[0], a * TU[1] + s * TN[1]], ANT = std({ color:0x2f3336, roughness:.6, metalness:.1 });
+  { const c = tp(4.75, 7.6), g = new THREE.Group(); soft(g, .44, .52, 1.24, .02, 0, 0, 0, ANT); box(g, .36, .02, 1.16, 0, .5, 0, MAT.soil);
+    for (let i = 0; i < 7; i++) sph(g, .17, 0, .66 + (i % 2) * .06, -.51 + i * .17, i % 2 ? MAT.leaf : MAT.leaf2, 1.1, 1.15, 1);
+    g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(TN[0], TN[1]); furnG.add(g); addObb(c[0], c[1], .44, 1.24, TN); }
+  [11.0, 11.0 - 5.3 / 3, 11.0 - 10.6 / 3, 5.7].forEach((a, k) => { const c = tp(a, 9.3), g = new THREE.Group(); cyl(g, .19, .14, .42, 0, 0, 0, ANT, 28); cyl(g, .17, .17, .02, 0, .41, 0, MAT.soil, 20);
+    for (let i = 0; i < 6; i++){ const an = i * 1.05 + k; sph(g, .13, Math.cos(an) * .08, .56 + (i % 3) * .07, Math.sin(an) * .08, i % 2 ? MAT.leaf : MAT.leaf2, 1, 1.15, 1); }
+    g.position.set(c[0], .012, c[1]); furnG.add(g); addObb(c[0], c[1], .4, .4, [1, 0]); });
 }
 // equipment cabinet in the recess: light grey, 1.20 m wide, 0.30 m deep, 1.80 m high, in the corner against the east wall of the recess (the wall of the building)
 {
