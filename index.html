@@ -1272,7 +1272,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
 {
   const TU = [.99719, .07505], TN = [-.07505, .99719], tp = (a, s) => [a * TU[0] + s * TN[0], a * TU[1] + s * TN[1]];
   { // station: charging plate, open garage cover, parked mower
-    const c = tp(-6.8, 4.9), g = new THREE.Group(), SHELL = std({ color:0xe6e7e8, roughness:.45 }), GREY = std({ color:0x8f9599, roughness:.5 }), ORG = std({ color:0xe8731b, roughness:.45 }), DARK = std({ color:0x232628, roughness:.7 });
+    const c = tp(-6.72, 6.17), g = new THREE.Group(), SHELL = std({ color:0xe6e7e8, roughness:.45 }), GREY = std({ color:0x8f9599, roughness:.5 }), ORG = std({ color:0xe8731b, roughness:.45 }), DARK = std({ color:0x232628, roughness:.7 });
     soft(g, .5, .025, .92, .01, 0, 0, 0, GREY);                                                                               // charging plate
     soft(g, .54, .045, .56, .02, 0, .30, -.17, SHELL); [-1, 1].forEach(s => soft(g, .04, .3, .56, .015, s * .25, .015, -.17, SHELL)); soft(g, .52, .3, .04, .015, 0, .015, -.43, SHELL);   // roof, side walls, back wall
     soft(g, .33, .10, .44, .05, 0, .075, 0, GREY); soft(g, .30, .06, .38, .04, 0, .15, 0, ORG);                         // mower body and orange shell
@@ -1280,14 +1280,12 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     box(g, .05, .012, .04, .0, .212, 0, DARK);                                                                             // stop button
     g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(TN[0], TN[1]); furnG.add(g); addObb(c[0], c[1], .54, .92, TN);
   }
-  { // double sun lounger: black metal frame, greige mattress, tilted back rest, two pillows
-    const c = tp(4.4, 7.5), g = new THREE.Group();
-    [[-1, -.32], [1, -.32], [-1, .95], [1, .95]].forEach(([sx, z]) => box(g, .05, .34, .05, sx * .64, 0, z, MAT.black));
-    [-1, 1].forEach(sx => { box(g, .04, .04, 1.5, sx * .66, .30, .32, MAT.black); link(g, [sx * .64, .32, -.38], [sx * .64, .66, -.78], .014, MAT.black, 6); });
-    box(g, 1.32, .03, .04, 0, .30, -.38, MAT.black); box(g, 1.32, .03, .04, 0, .30, 1.0, MAT.black);
-    soft(g, 1.36, .12, 1.4, .05, 0, .34, .30, S.sofa);                                                                       // flat part
-    const back = soft(g, 1.36, .12, .85, .05, 0, .34 + .425 * Math.sin(.72), -.4 - .425 * Math.cos(.72), S.sofa); back.rotation.x = .72;   // back rest, rises towards the head end
-    [-.34, .34].forEach(x => { const p = soft(g, .5, .1, .3, .045, x, .52, -.67, S.pillowB); p.rotation.x = .72; });
+  { // double sun lounger, flat: black metal frame and one greige mattress, at the front edge of the paving
+    const c = tp(4.4, 8.55), g = new THREE.Group();
+    [-1, 1].forEach(sx => [-.9, .9].forEach(z => box(g, .05, .30, .05, sx * .64, 0, z, MAT.black)));
+    [-1, 1].forEach(sx => box(g, .04, .04, 1.9, sx * .66, .26, 0, MAT.black));
+    [-.9, .9].forEach(z => box(g, 1.32, .03, .04, 0, .26, z, MAT.black));
+    soft(g, 1.4, .13, 2.0, .05, 0, .30, 0, S.sofa);
     g.position.set(c[0], .012, c[1]); g.rotation.y = Math.atan2(TN[0], TN[1]); furnG.add(g); addObb(c[0], c[1], 1.4, 2.0, TN);
   }
 }
