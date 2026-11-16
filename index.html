@@ -1250,7 +1250,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     let c;
     if (VARIANT === 'C'){        // variant 3: open walk-in shower right next to the vanity with a single glass wall, bath turned slightly towards the front corner
       c = rp(1.55, .46); { const sh = mkWalkIn(.9, .9); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .9, .9, N); }
-      c = rp(.9, 1.5); { const th = 15 * Math.PI / 180, dl = [N[0] * Math.cos(th) - U[0] * Math.sin(th), N[1] * Math.cos(th) - U[1] * Math.sin(th)], t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], dl); furnG.add(t); addObb(c[0], c[1], 1.8, .85, dl); }
+      c = rp(.8, 1.3); { const th = 28 * Math.PI / 180, dl = [N[0] * Math.cos(th) - U[0] * Math.sin(th), N[1] * Math.cos(th) - U[1] * Math.sin(th)], t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], dl); furnG.add(t); addObb(c[0], c[1], 1.8, .85, dl); }
     } else if (VB){        // variant 2: shower in the north-west corner, bath towards the window with a gap to the wall, tap in the middle of its window side
       c = rp(.49, .46); { const sh = mkShowerCabin(.9, .9, -1); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .9, .9, N); }
       c = rp(1.05, DD - .25 - .425); { const t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.8, .85, N); }
