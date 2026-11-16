@@ -50,9 +50,9 @@ Die Tour kennt drei Varianten, im Menü rechts unter «Layout variant» umschalt
 
 | Variante | Inhalt |
 |---|---|
-| **Variante 2 (Standard)** | Die Wand zwischen Bad und Ankleide ist um etwa 0,6 m Richtung Ankleide verschoben, das Bad ist rund 8,4 m² gross. Das WC (Reduit 2) neben der Ankleide entfällt samt Tür, die Ankleide reicht dafür bis nach hinten und hat nur noch auf einer Seite Schränke. |
+| **Variante 2** (`?variant=2`) | Die Wand zwischen Bad und Ankleide ist um etwa 0,6 m Richtung Ankleide verschoben, das Bad ist rund 8,4 m² gross. Das WC (Reduit 2) neben der Ankleide entfällt samt Tür, die Ankleide reicht dafür bis nach hinten und hat nur noch auf einer Seite Schränke. |
 | **Variante 1** | Grundriss genau wie im Plan (Adresszusatz `?variant=1`). |
-| **Variante 3** | Wie Variante 2, aber im Masterbad mit offener Walk-in-Dusche ganz beim Lavabo (nur eine Glaswand dazwischen) und einer leicht schräg gestellten Badewanne (`?variant=3`). |
+| **Variante 3 (Standard)** | Wie Variante 2, aber im Masterbad mit offener, bodengleicher Walk-in-Dusche ganz beim Lavabo (nur eine Glaswand dazwischen) und einer schräg in die Ecke gestellten freistehenden Badewanne. |
 
 ## Einrichtung
 

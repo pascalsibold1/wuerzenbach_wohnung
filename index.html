@@ -129,7 +129,7 @@
       <small class="sunSub">Luzern, 2026 · keys: <kbd>[</kbd> <kbd>]</kbd> time, <kbd>-</kbd> <kbd>=</kbd> date</small>
     </div></div>
   <button id="fsBtn" class="only-touch">Fullscreen</button>
-  <div id="variantWrap"><div id="variantHead">Layout variant</div><div id="variantBtns"><button data-v="2">Variant 2: bigger bath and dressing room (default)</button><button data-v="1">Variant 1: original plan</button><button data-v="3">Variant 3: walk-in shower, angled bath</button></div></div>
+  <div id="variantWrap"><div id="variantHead">Layout variant</div><div id="variantBtns"><button data-v="3">Variant 3: walk-in shower, angled bath (default)</button><button data-v="2">Variant 2: bigger bath and dressing room</button><button data-v="1">Variant 1: original plan</button></div></div>
   <div id="stopsWrap">
     <div id="stopsHead">Jump to</div>
     <div id="stops"></div>
@@ -291,7 +291,7 @@ const threeUrl = URL.createObjectURL(new Blob([getSrc('src-three')], {type:'text
 const THREE = await import(threeUrl);
 const rectLib = await import(URL.createObjectURL(new Blob([getSrc('src-rect').replace(/from\s*['"]three['"]/g, `from '${threeUrl}'`)], {type:'text/javascript'})));
 rectLib.RectAreaLightUniformsLib.init();
-const VARIANT = ({ '1':'A', '3':'C' })[new URLSearchParams(location.search).get('variant')] || 'B';     // A = original plan, B = bath and dressing room enlarged (default), C = like B with walk-in shower next to the vanity and an angled bath
+const VARIANT = ({ '1':'A', '2':'B' })[new URLSearchParams(location.search).get('variant')] || 'C';     // A = original plan, B = bath and dressing room enlarged, C = like B with walk-in shower next to the vanity and an angled bath (default)
 const VB = VARIANT !== 'A';
 const DATA = JSON.parse(getSrc(VARIANT === 'A' ? 'scene-data' : 'scene-data-b'));
 { const T = DATA.terrace, a = T.ang * Math.PI / 180, nx = -Math.sin(a), nz = Math.cos(a), CUT = 9.6, f = p => p[0] * nx + p[1] * nz - CUT, out = [], P = T.poly;     // cut the paving at a slab joint, 9.6 m from the house axis
@@ -1771,7 +1771,7 @@ const STOPS = [
   { name:'Garten', at:[470, 478], look:[0.8, -0.5] },
 ];
 if (VB){ const ri = STOPS.findIndex(s => s.name === 'Reduit 2'); if (ri >= 0) STOPS.splice(ri, 1); }
-document.querySelectorAll('#variantBtns button').forEach(b => { b.classList.toggle('on', b.dataset.v === ({ A:'1', B:'2', C:'3' })[VARIANT]); b.addEventListener('click', () => { const u = new URL(location.href); if (b.dataset.v === '2') u.searchParams.delete('variant'); else u.searchParams.set('variant', b.dataset.v); location.href = u.toString(); }); });
+document.querySelectorAll('#variantBtns button').forEach(b => { b.classList.toggle('on', b.dataset.v === ({ A:'1', B:'2', C:'3' })[VARIANT]); b.addEventListener('click', () => { const u = new URL(location.href); if (b.dataset.v === '3') u.searchParams.delete('variant'); else u.searchParams.set('variant', b.dataset.v); location.href = u.toString(); }); });
 const stopsEl = el('stops'); STOPS.forEach((s, i) => { const b = document.createElement('button'); b.textContent = (i < 9 ? (i + 1) + ' · ' : '') + s.name; b.addEventListener('click', () => jump(s)); stopsEl.appendChild(b); });
 function jump(s){ if (mode !== 'walk') return; teleport(s.at, s.look); document.body.classList.remove('menuOpen'); }
 
