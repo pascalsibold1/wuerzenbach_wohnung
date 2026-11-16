@@ -1241,8 +1241,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
       box(g, .16, .2, .06, px, 1.05, pz - zs * .01, MAT.brass); box(g, .03, .3, .03, px + .1, 0.95, pz, MAT.brass);                       // mixer and hand-shower holder
       return g; };
     const mkWalkIn = (w, d) => { const g = new THREE.Group(), FR = MAT.black;                                  // open shower: tray, one glass wall on the east side (towards the vanity), fittings on the north wall
-      soft(g, w, .045, d, .01, 0, 0, 0, S.counter); box(g, .1, .006, .1, -.05, .045, .0, FR);
-      box(g, .012, 2.0, d - .04, w / 2 - .006, .045, 0, MAT.glass).material = MAT.glass;
+      box(g, .012, 2.0, d - .04, w / 2 - .006, 0, 0, MAT.glass).material = MAT.glass;                                     // no shower tray: level floor
       box(g, .03, 2.05, .03, w / 2 - .015, 0, -d / 2 + .015, FR); box(g, .03, 2.05, .03, w / 2 - .015, 0, d / 2 - .015, FR); box(g, .012, .03, d, w / 2 - .006, 2.045, 0, FR);
       cyl(g, .13, .13, .012, 0, 2.1, -d / 2 + .38, MAT.brass, 24); cyl(g, .012, .012, .38, 0, 2.1 - .19, -d / 2 + .19, MAT.brass, 8).rotation.x = Math.PI / 2;     // rain head on its wall arm
       box(g, .16, .2, .06, -.12, 1.05, -d / 2 + .03, MAT.brass); box(g, .03, .3, .03, .05, .95, -d / 2 + .03, MAT.brass);                                      // mixer and hand-shower holder
@@ -1250,7 +1249,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     let c;
     if (VARIANT === 'C'){        // variant 3: open walk-in shower right next to the vanity with a single glass wall, bath turned slightly towards the front corner
       c = rp(1.55, .46); { const sh = mkWalkIn(.9, .9); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .9, .9, N); }
-      c = rp(.8, 1.3); { const th = 28 * Math.PI / 180, dl = [N[0] * Math.cos(th) - U[0] * Math.sin(th), N[1] * Math.cos(th) - U[1] * Math.sin(th)], t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], dl); furnG.add(t); addObb(c[0], c[1], 1.8, .85, dl); }
+      c = rp(.8, 1.2); { const th = 42 * Math.PI / 180, dl = [N[0] * Math.cos(th) - U[0] * Math.sin(th), N[1] * Math.cos(th) - U[1] * Math.sin(th)], t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], dl); furnG.add(t); addObb(c[0], c[1], 1.8, .85, dl); }
     } else if (VB){        // variant 2: shower in the north-west corner, bath towards the window with a gap to the wall, tap in the middle of its window side
       c = rp(.49, .46); { const sh = mkShowerCabin(.9, .9, -1); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .9, .9, N); }
       c = rp(1.05, DD - .25 - .425); { const t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.8, .85, N); }
