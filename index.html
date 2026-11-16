@@ -1204,7 +1204,7 @@ function bedroom(bedPt, footDir, W, L, o = {}){
 // bathrooms
 function mkTub(){ const g = new THREE.Group(); soft(g, .8, .56, 1.62, .07, 0, 0, 0, MAT.ceramic); const inner = soft(g, .64, .05, 1.46, .03, 0, .545, 0, MAT.ceramic); inner.scale.y = .4; link(g, [0, .56, -.74], [0, .78, -.74], .012, MAT.brass, 8); link(g, [0, .78, -.74], [0, .78, -.62], .01, MAT.brass, 8);
   box(g, .74, .02, .2, 0, .565, .15, MAT.oak); candle(g, -.2, .585, .15, .1, .03); bookStack(g, .15, .585, .15, 2, .1); box(g, .3, .12, .2, .0, .0, .0, MAT.black).visible = false; return g; }
-function mkWC(){ const g = new THREE.Group(); box(g, .4, 1.0, .12, 0, 0, -.3, MAT.white); soft(g, .37, .36, .55, .12, 0, .35, -.02, MAT.ceramic); box(g, .2, .02, .1, 0, .98, -.25, MAT.brass); return g; }
+function mkWC(h = 1.0){ const g = new THREE.Group(); box(g, .4, h, .12, 0, 0, -.3, MAT.white); soft(g, .37, .36, .55, .12, 0, .35, -.02, MAT.ceramic); box(g, .2, .02, .1, 0, h - .02, -.25, MAT.brass); return g; }
 function mkVanity(w, bowls, d = .5, br = .2){ const g = new THREE.Group(); soft(g, w, .4, d, .012, 0, .45, 0, MAT.oak); box(g, w + .02, .04, d + .02, 0, .85, 0, S.counter); for (let i = 0; i < bowls; i++){ const x = bowls === 1 ? 0 : (i - .5) * (w * .5); sph(g, br, x, .89, .02, MAT.ceramic, 1, .25, .7); link(g, [x, .89, -(d / 2 - .05)], [x, 1.08, -(d / 2 - .05)], .011, MAT.brass, 8); link(g, [x, 1.08, -(d / 2 - .05)], [x, 1.07, -(d / 2 - .15)], .009, MAT.brass, 8); }
   const tx = bowls > 1 ? w / 2 - .2 : w / 2 - .09; box(g, bowls > 1 ? .2 : .13, .016, .14, tx, .89, 0, MAT.brass); candle(g, tx - (bowls > 1 ? .04 : .02), .906, 0, .08, .025); vase(g, tx + (bowls > 1 ? .06 : .02), .906, .02, .1, .03); return g; }
 function mkShower(){ const g = new THREE.Group(); box(g, .9, .025, 1.1, 0, 0, 0, S.counter); box(g, .02, 2.0, 1.1, .46, 0, 0, MAT.glass).material = MAT.glass; box(g, .025, .02, 1.1, .46, 2.0, 0, MAT.brass); cyl(g, .12, .12, .012, 0, 2.15, -.5, MAT.brass); cyl(g, .01, .01, .3, 0, 2.15, -.54, MAT.brass); return g; }
@@ -1234,7 +1234,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
       return g; };
     let c = rp(.44, .41); { const sh = mkShowerCabin(.8, .8); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .8, .8, N); }
     c = rp(.7, 1.207); { const t = mkFreeTub(1.7, .8); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.7, .8, N); }
-    c = rp(1.92, .365); addF(mkWC(), c[0], c[1], N, [.4, .6]).userData.snap = 1;
+    c = rp(1.93, 1.247); addF(mkWC(.84), c[0], c[1], [-N[0], -N[1]], [.4, .6]).userData.snap = 1;      // opposite the vanity, against the grey parapet of the window wall (low cistern, stays below the window board)
     c = rp(2.75, .9); { const mt = new THREE.Group(); soft(mt, .9, .03, .55, .015, 0, 0, 0, S.towel); place(mt, c[0], c[1], N); furnG.add(mt); }
   }
   { const px = [466.3, 372.5], w = wallPlace('bad', px, .42), v = mkVanity(.9, 1, .42, .27); place(v, w.x, w.z, w.n); v.userData.snap = 1; furnG.add(v); addObb(w.x, w.z, .9, .42, w.n);     // single larger basin, in the corner next to the door
