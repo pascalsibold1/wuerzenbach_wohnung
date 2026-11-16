@@ -292,6 +292,24 @@ const DATA = JSON.parse(getSrc('scene-data'));
   for (let i = 0; i < P.length; i++){ const A = P[i], B = P[(i + 1) % P.length], fa = f(A), fb = f(B); if (fa <= 0) out.push(A); if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)){ const t = fa / (fa - fb); out.push([A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]); } }
   T.poly = out; }
 { const SH = 1.5; DATA.hedges.forEach(h => h.forEach(p => { if (Math.abs(p[0] - 10.777) < 0.01) p[0] += SH; })); DATA.hedges.push([[10.777 + SH, 6.879], [10.777, 6.879]]); DATA.garden.x1 += SH; DATA.trees.forEach(t => { t.c[0] += SH; }); }
+// master bath: the door in the east wall is replaced by a pocket door, and its opening is centred in the wall (north wall piece shortened, south piece extended)
+{
+  const K = DATA.ppm, OX0 = DATA.origin[0], OY0 = DATA.origin[1], yN = 382.7, yS = 400.8, bN = [386.9, 388.2], bS = [407.3, 408.7];
+  const fx = p => { const X = p[0] * K + OX0, Y = p[1] * K + OY0; if (X < 472.5 || X > 481) return p; if (Y >= bN[0] && Y <= bN[1]) return [p[0], (yN - OY0) / K]; if (Y >= bS[0] && Y <= bS[1]) return [p[0], (yS - OY0) / K]; return p; };
+  const fixRing = r => r.map(fx);
+  DATA.walls.forEach(w => { w.outer = fixRing(w.outer); if (w.holes) w.holes = w.holes.map(fixRing); });
+  DATA.rooms.forEach(r => { r.outer = fixRing(r.outer); if (r.holes) r.holes = r.holes.map(fixRing); r.runs.forEach(u => { u.a = fx(u.a); u.b = fx(u.b); }); });
+  [DATA.skirt, DATA.skirtLiving].forEach(list => { if (list) list.forEach(s => { if (s.outer) s.outer = fixRing(s.outer); if (s.holes) s.holes = s.holes.map(fixRing); }); });
+  const d9 = DATA.doors.find(d => d.id === 'D9');
+  if (d9){
+    const q = d9.quad.map(fx), mid = (p, r) => [(p[0] + r[0]) / 2, (p[1] + r[1]) / 2], A = mid(q[0], q[3]), B = mid(q[1], q[2]);
+    DATA.doors = DATA.doors.filter(d => d.id !== 'D9');
+    DATA.openings.push({ id:'O9', a:A, b:B, t:d9.t, quad:q, head:2.2, w:Math.hypot(B[0] - A[0], B[1] - A[1]) });
+    const bad = DATA.rooms.find(r => r.id === 'bad');       // tiles on the new wall stub south of the opening
+    bad.runs.push({ a:[(474.9 - OX0) / K, (yS - OY0) / K], b:[(474.4 - OX0) / K, (409.95 - OY0) / K], n:[-1, -0.07] });
+  }
+}
+
 DATA.bays.forEach(b => { b.glassOff = b.kind === 'small' ? 0.115 : 0.265; });
 { const T = DATA.terrace, a = T.ang * Math.PI / 180, U = [Math.cos(a), Math.sin(a)], N = [-Math.sin(a), Math.cos(a)], EXT = 2.5;
   const P = T.poly; const west = P.map((p, i) => ({ p, i })).filter(o => o.p[0] < 6).map(o => o.i); west.forEach(i => { P[i] = [P[i][0] - U[0] * EXT, P[i][1] - U[1] * EXT]; });
@@ -581,6 +599,22 @@ for (const d of DATA.doors){
 }
 // openings without leaf
 for (const o of DATA.openings){ wallG.add(prism(o.quad, null, o.head, H_WALL, MAT.plaster)); roofG.add(prism(o.quad, null, H_WALL, H_SLAB, [MAT.roof, MAT.plaster])); }
+
+// double-leaf pocket doors (the leaves slide into the wall on both sides): dressing room (opening O1) and master bath (opening O9)
+const pockets = [];
+for (const o of DATA.openings){
+  if (o.id !== 'O1' && o.id !== 'O9') continue;
+  const A = o.a, B = o.b, W = Math.hypot(B[0] - A[0], B[1] - A[1]), u = unit(B[0] - A[0], B[1] - A[1]), c = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2], rotY = -Math.atan2(u[1], u[0]), nrm = [-u[1], u[0]];
+  const leafW = W / 2 + 0.012, leaves = [];
+  [-1, 1].forEach((s, k) => {
+    const grp = new THREE.Group(), closed = [c[0] + u[0] * s * W / 4 + nrm[0] * (k ? 0.015 : -0.015), c[1] + u[1] * s * W / 4 + nrm[1] * (k ? 0.015 : -0.015)], open = [closed[0] + u[0] * s * W / 2, closed[1] + u[1] * s * W / 2];
+    grp.rotation.y = rotY; const leaf = new THREE.Mesh(new THREE.BoxGeometry(leafW, 2.12, 0.03), MAT.lacquer); leaf.position.set(0, 1.07, 0); leaf.castShadow = leaf.receiveShadow = true; grp.add(leaf);
+    [-1, 1].forEach(f => box(grp, 0.014, 0.34, 0.012, -s * (leafW / 2 - 0.05), 0.9, f * 0.021, MAT.black));            // pull handle at the meeting edge, both faces
+    grp.position.set(open[0], 0, open[1]); doorG.add(grp); leaves.push({ grp, closed, open });
+  });
+  box(doorG, W + 0.04, 0.035, 0.05, c[0], 2.13, c[1], MAT.black, rotY);                                                    // top rail
+  pockets.push({ id:'P-' + o.id, d:{ pocket:true }, o, c, A, B, leaves, open:true, t:1 });
+}
 
 // window bays
 const bayStates = [], areaLights = [];
@@ -1171,17 +1205,17 @@ function bedroom(bedPt, footDir, W, L, o = {}){
 function mkTub(){ const g = new THREE.Group(); soft(g, .8, .56, 1.62, .07, 0, 0, 0, MAT.ceramic); const inner = soft(g, .64, .05, 1.46, .03, 0, .545, 0, MAT.ceramic); inner.scale.y = .4; link(g, [0, .56, -.74], [0, .78, -.74], .012, MAT.brass, 8); link(g, [0, .78, -.74], [0, .78, -.62], .01, MAT.brass, 8);
   box(g, .74, .02, .2, 0, .565, .15, MAT.oak); candle(g, -.2, .585, .15, .1, .03); bookStack(g, .15, .585, .15, 2, .1); box(g, .3, .12, .2, .0, .0, .0, MAT.black).visible = false; return g; }
 function mkWC(){ const g = new THREE.Group(); box(g, .4, 1.0, .12, 0, 0, -.3, MAT.white); soft(g, .37, .36, .55, .12, 0, .35, -.02, MAT.ceramic); box(g, .2, .02, .1, 0, .98, -.25, MAT.brass); return g; }
-function mkVanity(w, bowls){ const g = new THREE.Group(); soft(g, w, .4, .5, .012, 0, .45, 0, MAT.oak); box(g, w + .02, .04, .52, 0, .85, 0, S.counter); for (let i = 0; i < bowls; i++){ const x = bowls === 1 ? 0 : (i - .5) * (w * .5); sph(g, .2, x, .89, 0, MAT.ceramic, 1, .25, .7); link(g, [x, .89, -.2], [x, 1.08, -.2], .011, MAT.brass, 8); link(g, [x, 1.08, -.2], [x, 1.07, -.1], .009, MAT.brass, 8); }
-  const tray = bowls > 1 ? [.5] : [.22]; tray.forEach(xx => { box(g, .2, .016, .14, w / 2 - .2, .89, .0, MAT.brass); candle(g, w / 2 - .24, .906, 0, .08, .025); vase(g, w / 2 - .14, .906, .02, .1, .03); }); return g; }
+function mkVanity(w, bowls, d = .5, br = .2){ const g = new THREE.Group(); soft(g, w, .4, d, .012, 0, .45, 0, MAT.oak); box(g, w + .02, .04, d + .02, 0, .85, 0, S.counter); for (let i = 0; i < bowls; i++){ const x = bowls === 1 ? 0 : (i - .5) * (w * .5); sph(g, br, x, .89, .02, MAT.ceramic, 1, .25, .7); link(g, [x, .89, -(d / 2 - .05)], [x, 1.08, -(d / 2 - .05)], .011, MAT.brass, 8); link(g, [x, 1.08, -(d / 2 - .05)], [x, 1.07, -(d / 2 - .15)], .009, MAT.brass, 8); }
+  const tx = bowls > 1 ? w / 2 - .2 : w / 2 - .09; box(g, bowls > 1 ? .2 : .13, .016, .14, tx, .89, 0, MAT.brass); candle(g, tx - (bowls > 1 ? .04 : .02), .906, 0, .08, .025); vase(g, tx + (bowls > 1 ? .06 : .02), .906, .02, .1, .03); return g; }
 function mkShower(){ const g = new THREE.Group(); box(g, .9, .025, 1.1, 0, 0, 0, S.counter); box(g, .02, 2.0, 1.1, .46, 0, 0, MAT.glass).material = MAT.glass; box(g, .025, .02, 1.1, .46, 2.0, 0, MAT.brass); cyl(g, .12, .12, .012, 0, 2.15, -.5, MAT.brass); cyl(g, .01, .01, .3, 0, 2.15, -.54, MAT.brass); return g; }
 function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y => cyl(g, .01, .01, w, 0, y, .05, MAT.brass, 8).rotation.z = Math.PI / 2); [-1, 1].forEach(s => box(g, .02, 1.2, .02, s * (w / 2), .35, .02, MAT.brass)); [[.2, .85], [-.1, 1.2]].forEach(([x, y]) => soft(g, .32, .42, .04, .02, x, y - .4, .08, S.towel)); return g; }
 {
   let q = fp(401.3 + 8.75, 387.2); addF(mkTub(), q[0], q[1], [0, 1], [.8, 1.62]).userData.snap = 1;
   q = fp(428.9, 370.0); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
-  q = fp(455.2, 372.5); addF(mkVanity(1.3, 2), q[0], q[1], [0, 1], [1.3, .5]).userData.snap = 1;
-  q = fp(455.2, 368.0); { const m = mkMirror(1.2, .9); place(m, q[0], q[1] + .02, [0, 1], 1.2); m.userData.snap = 1; furnG.add(m); [-.75, .75].forEach(s => { const sc = new THREE.Group(); box(sc, .04, .22, .04, 0, 0, 0, MAT.brass); const e = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .16, 12), MAT.emit); e.position.y = .11; sc.add(e); sc.position.set(q[0] + s, 1.55, q[1] + .04); sc.userData.snap = 1; furnG.add(sc); }); }
+  { const px = [466.3, 372.5], w = wallPlace('bad', px, .42), v = mkVanity(.9, 1, .42, .27); place(v, w.x, w.z, w.n); v.userData.snap = 1; furnG.add(v); addObb(w.x, w.z, .9, .42, w.n);     // single larger basin, in the corner next to the door
+    const wm = wallPlace('bad', px, .03), m = mkMirror(.7, .9); place(m, wm.x, wm.z, wm.n, 1.25); m.userData.snap = 1; furnG.add(m);
+    const ws = wallPlace('bad', [466.3 - .56 * 22.677, 372.5], .04), sc = new THREE.Group(); box(sc, .04, .22, .04, 0, 0, 0, MAT.brass); const e = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .16, 12), MAT.emit); e.position.y = .11; sc.add(e); sc.position.set(ws.x, 1.55, ws.z); sc.userData.snap = 1; furnG.add(sc); }
   q = fp(455.2, 387.5); { const mt = new THREE.Group(); const m = soft(mt, .9, .03, .55, .015, 0, 0, 0, S.towel); mt.position.set(q[0], 0, q[1]); furnG.add(mt); }
-  q = fp(473.0, 378.5); { const t = mkTowelRail(.6); place(t, q[0], q[1], [-1, 0]); t.userData.snap = 1; furnG.add(t); }
   // DU/WC
   q = fp(307.2, 325.9); addF(mkShower(), q[0], q[1], [1, 0], [.9, 1.1]);
   q = fp(330.0, 312.6); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
@@ -1515,7 +1549,7 @@ applyStyle(0);
 
 /* ============================================================== collision + player */
 const player = { x:0, z:0, fy:0, yaw:0, pitch:0, eye:1.62, speed:0 };
-const doorSegs = () => { const out = []; for (const s of doors){ if (s.t < 0.98){ const C = s.d.hinge, E = s.d.closed; out.push([C[0], C[1], E[0], E[1]]); } } for (const b of bayStates){ if (b.b.kind === 'door'){ out.push(b.open && b.t > 0.98 ? [...b.fixed[0], ...b.fixed[1]] : [...b.line[0], ...b.line[1]]); } else out.push([...b.line[0], ...b.line[1]]); } return out; };
+const doorSegs = () => { const out = []; for (const p of pockets){ if (p.t < 0.98) out.push([p.A[0], p.A[1], p.B[0], p.B[1]]); } for (const s of doors){ if (s.t < 0.98){ const C = s.d.hinge, E = s.d.closed; out.push([C[0], C[1], E[0], E[1]]); } } for (const b of bayStates){ if (b.b.kind === 'door'){ out.push(b.open && b.t > 0.98 ? [...b.fixed[0], ...b.fixed[1]] : [...b.line[0], ...b.line[1]]); } else out.push([...b.line[0], ...b.line[1]]); } return out; };
 const R = 0.2;
 function resolve(){
   const segs = collSegs.concat(doorSegs());
@@ -1532,6 +1566,7 @@ function teleport(pt, look){ const q = fp(pt[0], pt[1]); player.x = q[0]; player
 function nearestInteractive(){
   let best = null, bd = 2.1;
   for (const s of doors){ const m = [(s.d.hinge[0] + s.d.closed[0]) / 2, (s.d.hinge[1] + s.d.closed[1]) / 2], d = Math.hypot(m[0] - player.x, m[1] - player.z); if (d < bd){ bd = d; best = s; } }
+  for (const p of pockets){ const d = Math.hypot(p.c[0] - player.x, p.c[1] - player.z) - 0.3; if (d < bd){ bd = d; best = p; } }
   for (const b of bayStates){ if (b.b.kind !== 'door') continue; const m = [(b.line[0][0] + b.line[1][0]) / 2, (b.line[0][1] + b.line[1][1]) / 2], d = Math.hypot(m[0] - player.x, m[1] - player.z) - 0.6; if (d < bd){ bd = d; best = b; } }
   return best;
 }
@@ -1820,6 +1855,7 @@ function frame(now){
   let moving = false;
   for (const s of doors){ const target = s.open ? 1 : 0; if (s.t !== target){ s.t += Math.sign(target - s.t) * Math.min(Math.abs(target - s.t), dt * 2.2); s.grp.rotation.y = s.closedRot + (s.openRot - s.closedRot) * ease(s.t); moving = true; } }
   for (const b of bayStates){ if (b.slider){ const target = b.open ? 1 : 0; if (b.t !== target){ b.t += Math.sign(target - b.t) * Math.min(Math.abs(target - b.t), dt * 1.3); const e = ease(b.t); b.slider.position.set(b.closedPos[0] + (b.openPos[0] - b.closedPos[0]) * e, 0, b.closedPos[1] + (b.openPos[1] - b.closedPos[1]) * e); moving = true; } } }
+  for (const p of pockets){ const target = p.open ? 1 : 0; if (p.t !== target){ p.t += Math.sign(target - p.t) * Math.min(Math.abs(target - p.t), dt * 1.2); const e = ease(p.t); p.leaves.forEach(l => l.grp.position.set(l.closed[0] + (l.open[0] - l.closed[0]) * e, 0, l.closed[1] + (l.open[1] - l.closed[1]) * e)); moving = true; } }
   if (moving) renderer.shadowMap.needsUpdate = true;
   if (tween){
     tween.t = Math.min(1, tween.t + dt / 1.1); const e = ease(tween.t);
