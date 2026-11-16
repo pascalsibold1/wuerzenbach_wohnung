@@ -50,7 +50,7 @@ Die Tour kennt zwei Grundrissvarianten, im Menü rechts unter «Layout variant»
 
 | Variante | Inhalt |
 |---|---|
-| **Variante 2 (Standard)** | Die Wand zwischen Bad und Ankleide ist um etwa 0,44 m Richtung Ankleide verschoben, das Bad ist grösser. Das WC (Reduit 2) neben der Ankleide entfällt samt Tür, die Ankleide reicht dafür bis nach hinten und hat nur noch auf einer Seite Schränke. |
+| **Variante 2 (Standard)** | Die Wand zwischen Bad und Ankleide ist um etwa 0,8 m Richtung Ankleide verschoben, das Bad ist rund 9 m² gross. Das WC (Reduit 2) neben der Ankleide entfällt samt Tür, die Ankleide reicht dafür bis nach hinten und hat nur noch auf einer Seite Schränke. |
 | **Variante 1** | Grundriss genau wie im Plan (Adresszusatz `?variant=1`). |
 
 ## Einrichtung
