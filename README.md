@@ -44,6 +44,15 @@ Der Knopf «Sun study» öffnet zwei Regler für Datum und Uhrzeit (Luzern, 2026
 
 Grenzen: Berücksichtigt sind nur die modellierten Bauteile der Wohnung, die Bäume und Hecken. Obergeschosse und Nachbarbauten fehlen im Plan. Mit «Upper floors cast shade (assumed)» lässt sich ein unsichtbarer Block aus zwei Geschossen über der Wohnung zuschalten. Das ist eine Annahme und kein Planinhalt, also keine verbindliche Aussage über die Besonnung.
 
+## Layout-Varianten
+
+Die Tour kennt zwei Grundrissvarianten, im Menü rechts unter «Layout variant» umschaltbar (die Seite lädt dabei neu):
+
+| Variante | Inhalt |
+|---|---|
+| **Variante 2 (Standard)** | Die Wand zwischen Bad und Ankleide ist um etwa 0,44 m Richtung Ankleide verschoben, das Bad ist grösser. Das WC (Reduit 2) neben der Ankleide entfällt samt Tür, die Ankleide reicht dafür bis nach hinten und hat nur noch auf einer Seite Schränke. |
+| **Variante 1** | Grundriss genau wie im Plan (Adresszusatz `?variant=1`). |
+
 ## Einrichtung
 
 Die Wohnung ist vollständig möbliert im Stil **Nordic Light**: gebleichte Eiche, heller Terrazzo, weisse Küche, schwarze Metallteile, Leinen und Wolle in Salbei und Taubenblau. Dazu gehören Teppiche, Bilder, Lampen, Vorhänge, ein gedeckter Esstisch, gemachte Betten und eine Küche mit Steinplatte. Im Reduit 1 steht eine Waschnische mit anthrazitfarbener Waschmaschine und Trockner an der Rückwand, Arbeitsplatte, Eichenregalen mit LED-Licht und Metro-Fliesen.
