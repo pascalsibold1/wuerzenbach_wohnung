@@ -292,6 +292,7 @@ const DATA = JSON.parse(getSrc('scene-data'));
   for (let i = 0; i < P.length; i++){ const A = P[i], B = P[(i + 1) % P.length], fa = f(A), fb = f(B); if (fa <= 0) out.push(A); if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)){ const t = fa / (fa - fb); out.push([A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]); } }
   T.poly = out; }
 { const SH = 1.5; DATA.hedges.forEach(h => h.forEach(p => { if (Math.abs(p[0] - 10.777) < 0.01) p[0] += SH; })); DATA.hedges.push([[10.777 + SH, 6.879], [10.777, 6.879]]); DATA.garden.x1 += SH; DATA.trees.forEach(t => { t.c[0] += SH; }); }
+DATA.bays.forEach(b => { if (b.id === 'S1') b.glassOff = 0.30; });
 { const T = DATA.terrace, a = T.ang * Math.PI / 180, U = [Math.cos(a), Math.sin(a)], N = [-Math.sin(a), Math.cos(a)], EXT = 2.5;
   const P = T.poly; const west = P.map((p, i) => ({ p, i })).filter(o => o.p[0] < 6).map(o => o.i); west.forEach(i => { P[i] = [P[i][0] - U[0] * EXT, P[i][1] - U[1] * EXT]; });
   const V0 = P[0], S0 = 5.86, S1 = 6.66, sOf = p => p[0] * N[0] + p[1] * N[1], aOf = p => p[0] * U[0] + p[1] * U[1], at = (aa, ss) => [aa * U[0] + ss * N[0], aa * U[1] + ss * N[1]];
@@ -1134,13 +1135,13 @@ function bedroom(bedPt, footDir, W, L, o = {}){
   const rc = [c[0] + foot[0] * .4, c[1] + foot[1] * .4], rug = mkRugLux(S.rugB, o.rug ? o.rug[0] : 2.5, o.rug ? o.rug[1] : 1.9); rug.position.set(rc[0], 0, rc[1]); rug.rotation.y = -Math.atan2(foot[1], foot[0]); furnG.add(rug);
   addF(mkBedLux(W, L), c[0], c[1], foot, [W + .16, L + .1]);
   if (!o.noNight) [-1, 1].forEach(s => { const p = [c[0] + lat[0] * s * (W / 2 + .36) - foot[0] * (L / 2 - .2), c[1] + lat[1] * s * (W / 2 + .36) - foot[1] * (L / 2 - .2)]; addF(mkNightLux(.5, .4, true), p[0], p[1], foot, [.5, .4]); });
-  if (o.bench){ const p = [c[0] + foot[0] * (L / 2 + .42), c[1] + foot[1] * (L / 2 + .42)]; const bn = mkBenchLux(W - .1, .42); addF(bn, p[0], p[1], foot, [W - .1, .42]); }
+  if (o.bench){ const bo = L / 2 + (o.benchTight ? .252 : .42), p = [c[0] + foot[0] * bo, c[1] + foot[1] * bo]; const bn = mkBenchLux(W - .1, .42); addF(bn, p[0], p[1], foot, [W - .1, .42]); }
   return { c, foot, lat };
 }
 {
   bedroom([489.5, 211.8], [-.969, -.245], 1.4, 2.0, { rug:[2.4, 1.8] });
   bedroom([525.4, 250.5], [.2326, -.9726], 1.4, 2.0, { rug:[2.4, 1.8], bench:true });
-  const m = bedroom([537.7, 370.1], [-.970, -.244], 1.8, 2.0, { noNight:true, bench:true, rug:[2.7, 2.2] });
+  const m = bedroom([537.7, 370.1], [-.970, -.244], 1.8, 2.0, { noNight:true, bench:true, benchTight:true, rug:[2.7, 2.2] });
   [[563.2, 348.6], [549.7, 401.3]].forEach(p => { const q = fp(p[0], p[1]); addF(mkNightLux(.45, .36, true), q[0], q[1], [-.97, -.24], [.45, .36]); });
   let q = fp(484.7, 154.9); addF(mkDesk(), q[0], q[1], [-.4215, .9068], [1.5, .76]);
   q = fp(476.9, 163.8); { const ch = mkChairO(); place(ch, q[0], q[1], [.4215, -.9068]); furnG.add(ch); addObb(q[0], q[1], .5, .5, [1, 0]); }
@@ -1150,15 +1151,14 @@ function bedroom(bedPt, footDir, W, L, o = {}){
   q = fp(582.4, 264.4); addF(mkWardrobe(1.8, .6, 2.5, 3), q[0], q[1], [-.968, -.25], [1.8, .6]);
   q = fp(460.5, 321.1); addF(mkWardrobe(1.8, .6, 2.5, 4), q[0], q[1], [-.075, .997], [1.8, .6]);
   q = fp(457.7, 358.4); addF(mkWardrobe(1.8, .6, 2.5, 4), q[0], q[1], [.075, -.997], [1.8, .6]);
-  q = fp(503, 398.5); addF(mkBarrelChair(), q[0], q[1], [.55, -.83], [.8, .8]);                                        // reading chair in the master bedroom
-  q = fp(496, 405); { const l = mkFloorLamp(); l.position.set(q[0], 0, q[1]); furnG.add(l); addObb(q[0], q[1], .36, .36, [1, 0]); }
   // pictures above the bed heads
   { const w = wallPlace('z01', [516, 218.5], .02); hang(2, 1.2, .8, w.x, w.z, w.n, 1.4); }
   { const w = wallPlace('z02', [519, 277], .02); hang(0, .9, 1.15, w.x, w.z, w.n, 1.35); }
-  { const w = wallPlace('z03', [566, 370], .02); hang(1, 1.3, .9, w.x, w.z, w.n, 1.5); }
+  { const P = [m.c[0] - m.foot[0] * 1.3, m.c[1] - m.foot[1] * 1.3], w = wallPlace('z03', [P[0] * PPM + OX, P[1] * PPM + OY], .02); hang(1, 1.3, .9, w.x, w.z, w.n, 1.5); }   // centred on the bed axis
   // full-length mirror in the dressing room, round mirror in Zimmer 03
-  { const w = wallPlace('ankleide', [438.5, 340], .03); const mm = mkMirror(.7, 1.85); place(mm, w.x, w.z, w.n, .1); furnG.add(mm); }
-  { const w = wallPlace('z03', [479, 372], .03); const mr = mkRoundMirror(.42); place(mr, w.x, w.z, w.n, 1.2); furnG.add(mr); }
+  { const w = wallPlace('ankleide', [438.5, 340], .03), f1 = fp(460.5, 321.1), f2 = fp(457.7, 358.4), along = ((f1[0] + f2[0]) / 2 - w.x) * w.ux + ((f1[1] + f2[1]) / 2 - w.z) * w.uz;   // centre between the two wardrobes, measured along the wall
+    const mm = mkMirror(.7, 1.85); place(mm, w.x + w.ux * along, w.z + w.uz * along, w.n, .1); furnG.add(mm); }
+  { const w = wallPlace('z03', [479, 372], .02); hang(3, .75, .95, w.x, w.z, w.n, 1.15); }   // picture where the round mirror was
 }
 // curtains: both sides in the bedrooms, outer edges only in the living room (the piers between the windows stay free for art)
 {
