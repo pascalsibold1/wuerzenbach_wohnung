@@ -916,6 +916,7 @@ function bookStack(parent, x, y, z, n = 3, rotY = 0){ const r = rnd32(Math.floor
 function bowl(parent, x, y, z, r, mat = MAT.ceramicD, withFruit = true){ lathe(parent, [[0, 0], [r * .5, 0], [r * .9, r * .22], [r, r * .55]], x, y, z, mat, 26); if (withFruit) for (let i = 0; i < 6; i++){ const a = i / 6 * 6.283; sph(parent, r * .24, x + Math.cos(a) * r * .45, y + r * .4, z + Math.sin(a) * r * .45, fruit[i % 3]); } if (withFruit) sph(parent, r * .24, x, y + r * .55, z, fruit[0]); }
 const cushion = (parent, w, h, d, x, y, z, mat, rx = 0, ry = 0, rz = 0) => { const m = soft(parent, w, h, d, Math.min(h, d) * .42, x, y, z, mat, ry); m.rotation.x = rx; m.rotation.z = rz; return m; };
 function wineGlass(parent, x, y, z){ lathe(parent, [[0, 0], [.035, 0], [.036, .004], [.006, .008], [.005, .09], [.03, .115], [.04, .15], [.038, .195], [.028, .21]], x, y, z, glassStem, 16); }
+const COLL0 = collSegs.length;     // collision segments before this index belong to walls/outdoors, after it to furniture
 function mkRugLux(mat, w, d, kind){ const g = new THREE.Group(); rugMat(mat, w, d, kind || (d > w * 1.6 || w > d * 1.6 ? 'wide' : 'wide')); const m = box(g, w, .016, d, 0, 0, 0, mat); m.castShadow = false; return g; }
 function mkRoundMirror(r){ const g = new THREE.Group(), f = new THREE.Mesh(new THREE.TorusGeometry(r, .018, 10, 48), MAT.brass); f.position.set(0, r, 0); g.add(f); const m = new THREE.Mesh(new THREE.CircleGeometry(r, 48), MAT.mirror); m.position.set(0, r, -.004); g.add(m); return g; }
 function mkMirror(w, h){ const g = new THREE.Group(); box(g, w + .04, h + .04, .025, 0, 0, 0, MAT.brass); const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), MAT.mirror); m.position.set(0, h / 2 + .02, .014); g.add(m); return g; }
@@ -1128,7 +1129,7 @@ mkKitchenRun();
   { const c2 = fp(715.0, 377.3), a = [.245, -.970], bk = [.970, .245]; [[-1.0, 0, .8, 1.0], [.05, 5, 1.1, .75], [1.05, 3, .8, 1.0]].forEach(([t, kind, w, h]) => hang(kind, w, h, c2[0] + a[0] * t + bk[0] * .21, c2[1] + a[1] * t + bk[1] * .21, [-.970, -.245], 1.25)); }
   // art on the piers between the windows
   const bay = id => DATA.bays.find(b => b.id === id);
-  [['S3', 'S4', 4], ['N3', 'N4', 2]].forEach(([i1, i2, kind]) => { const b1 = bay(i1), b2 = bay(i2), e1 = [b1.a[0] + b1.u[0] * b1.len, b1.a[1] + b1.u[1] * b1.len], mid = [(e1[0] + b2.a[0]) / 2 - b1.n[0] * .02, (e1[1] + b2.a[1]) / 2 - b1.n[1] * .02]; hang(kind, .72, 1.05, mid[0], mid[1], [-b1.n[0], -b1.n[1]], 1.15); });
+  [['S3', 'S4', 4], ['N3', 'N4', 2]].forEach(([i1, i2, kind]) => { const b1 = bay(i1), b2 = bay(i2), e1 = [b1.a[0] + b1.u[0] * b1.len, b1.a[1] + b1.u[1] * b1.len], mid = [(e1[0] + b2.a[0]) / 2 - b1.n[0] * .02, (e1[1] + b2.a[1]) / 2 - b1.n[1] * .02]; hang(kind, .72, 1.05, mid[0], mid[1], [-b1.n[0], -b1.n[1]], 1.15).userData.snap = 1; });
 }
 // bedrooms: made beds, bedside tables with lamps, rugs, benches, art
 function bedroom(bedPt, footDir, W, L, o = {}){
@@ -1175,17 +1176,17 @@ function mkVanity(w, bowls){ const g = new THREE.Group(); soft(g, w, .4, .5, .01
 function mkShower(){ const g = new THREE.Group(); box(g, .9, .025, 1.1, 0, 0, 0, S.counter); box(g, .02, 2.0, 1.1, .46, 0, 0, MAT.glass).material = MAT.glass; box(g, .025, .02, 1.1, .46, 2.0, 0, MAT.brass); cyl(g, .12, .12, .012, 0, 2.15, -.5, MAT.brass); cyl(g, .01, .01, .3, 0, 2.15, -.54, MAT.brass); return g; }
 function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y => cyl(g, .01, .01, w, 0, y, .05, MAT.brass, 8).rotation.z = Math.PI / 2); [-1, 1].forEach(s => box(g, .02, 1.2, .02, s * (w / 2), .35, .02, MAT.brass)); [[.2, .85], [-.1, 1.2]].forEach(([x, y]) => soft(g, .32, .42, .04, .02, x, y - .4, .08, S.towel)); return g; }
 {
-  let q = fp(401.3 + 8.75, 387.2); addF(mkTub(), q[0], q[1], [0, 1], [.8, 1.62]);
-  q = fp(428.9, 370.0); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]);
-  q = fp(455.2, 372.5); addF(mkVanity(1.3, 2), q[0], q[1], [0, 1], [1.3, .5]);
-  q = fp(455.2, 368.0); { const m = mkMirror(1.2, .9); place(m, q[0], q[1] + .02, [0, 1], 1.2); furnG.add(m); [-.75, .75].forEach(s => { const sc = new THREE.Group(); box(sc, .04, .22, .04, 0, 0, 0, MAT.brass); const e = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .16, 12), MAT.emit); e.position.y = .11; sc.add(e); sc.position.set(q[0] + s, 1.55, q[1] + .04); furnG.add(sc); }); }
+  let q = fp(401.3 + 8.75, 387.2); addF(mkTub(), q[0], q[1], [0, 1], [.8, 1.62]).userData.snap = 1;
+  q = fp(428.9, 370.0); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
+  q = fp(455.2, 372.5); addF(mkVanity(1.3, 2), q[0], q[1], [0, 1], [1.3, .5]).userData.snap = 1;
+  q = fp(455.2, 368.0); { const m = mkMirror(1.2, .9); place(m, q[0], q[1] + .02, [0, 1], 1.2); m.userData.snap = 1; furnG.add(m); [-.75, .75].forEach(s => { const sc = new THREE.Group(); box(sc, .04, .22, .04, 0, 0, 0, MAT.brass); const e = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .16, 12), MAT.emit); e.position.y = .11; sc.add(e); sc.position.set(q[0] + s, 1.55, q[1] + .04); sc.userData.snap = 1; furnG.add(sc); }); }
   q = fp(455.2, 387.5); { const mt = new THREE.Group(); const m = soft(mt, .9, .03, .55, .015, 0, 0, 0, S.towel); mt.position.set(q[0], 0, q[1]); furnG.add(mt); }
-  q = fp(473.0, 378.5); { const t = mkTowelRail(.6); place(t, q[0], q[1], [-1, 0]); furnG.add(t); }
+  q = fp(473.0, 378.5); { const t = mkTowelRail(.6); place(t, q[0], q[1], [-1, 0]); t.userData.snap = 1; furnG.add(t); }
   // DU/WC
   q = fp(307.2, 325.9); addF(mkShower(), q[0], q[1], [1, 0], [.9, 1.1]);
-  q = fp(330.0, 312.6); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]);
-  q = fp(354.4, 309.2); addF(mkVanity(.8, 1), q[0], q[1], [0, 1], [.8, .5]);
-  q = fp(354.4, 308.0); { const m = mkMirror(.8, .9); place(m, q[0], q[1] + .02, [0, 1], 1.25); furnG.add(m); }
+  q = fp(330.0, 312.6); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
+  q = fp(354.4, 309.2); addF(mkVanity(.8, 1), q[0], q[1], [0, 1], [.8, .5]).userData.snap = 1;
+  q = fp(354.4, 308.0); { const m = mkMirror(.8, .9); place(m, q[0], q[1] + .02, [0, 1], 1.25); m.userData.snap = 1; furnG.add(m); }
   q = fp(354, 331); { const mt = new THREE.Group(); soft(mt, .8, .03, .5, .015, 0, 0, 0, S.towel); mt.position.set(q[0], 0, q[1]); furnG.add(mt); }
   // the small WC next to the Ankleide is used as a second Reduit (storage): shelving along its walls
   { const room = roomById.wc, rr = rnd32(41), cardboard = clr(0xb89a72, .9), blue = clr(0x3b78b5, .4), green = clr(0x59a55b, .4), grey = clr(0x8c9094, .5);
@@ -1210,19 +1211,19 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
 // corridor: runner rug, console with mirror and lamp, gallery wall, coat unit with coats and shoes
 {
   const rr = mkRugLux(S.rugR, .85, 3.4, 'runner'), rc = fp(503, 289.5); rr.position.set(rc[0], 0, rc[1]); rr.rotation.y = Math.atan2(.97, .24); furnG.add(rr);          // long side (local z) along the corridor
-  const w = wallPlace('korridor', [492, 312], .34);
+  const w = wallPlace('korridor', [528, 316], .34);        // flat wall piece east of the free-standing column at plan (495, 308)
   { const g = new THREE.Group(); [-1, 1].forEach(s => [-1, 1].forEach(t => cyl(g, .014, .01, .78, s * .52, 0, t * .13, MAT.brass, 8))); soft(g, 1.2, .04, .32, .012, 0, .78, 0, S.counter); box(g, 1.1, .06, .28, 0, .7, 0, MAT.oak);
     tableLamp(g, -.4, .82, 0, .85, MAT.ceramic); vase(g, .3, .82, 0, .26, .07); flowers(g, .3, 1.06, 0, .8, .34); bookStack(g, .0, .82, .03, 3, .1); addF(g, w.x, w.z, w.n, [1.2, .34]);
     const mr = mkRoundMirror(.45); place(mr, w.x - w.n[0] * .17, w.z - w.n[1] * .17, w.n, 1.25); furnG.add(mr); }
   { const w2 = wallPlace('korridor', [520, 277], .02), kinds = [3, 0, 1]; kinds.forEach((k, i) => { const t = (i - 1) * .95; hang(k, .6, .8, w2.x + w2.ux * t, w2.z + w2.uz * t, w2.n, 1.2); }); }
   // coat unit on the south face of Zimmer 01's wall: oak back panel, hat shelf, rail, hooks, bench
-  { const len = 1.95, c0 = fp(437, 242.4), nS = [-.2515, .970], g = new THREE.Group();
+  { const len = 1.95, c0 = fp(436.43, 244.6), nS = [-.2515, .970], g = new THREE.Group();
     box(g, len, 2.1, .02, 0, .1, .01, MAT.oak); box(g, len, .04, .34, 0, 1.92, .19, MAT.oak); link(g, [-len / 2 + .05, 1.78, .14], [len / 2 - .05, 1.78, .14], .012, MAT.brass, 8);
     for (let i = 0; i < 6; i++) box(g, .025, .1, .06, -len / 2 + .2 + i * (len - .4) / 5, 1.5, .05, MAT.brass);
     soft(g, len, .06, .36, .015, 0, .42, .19, MAT.oak); [-1, 1].forEach(s => box(g, .05, .42, .3, s * (len / 2 - .1), 0, .19, MAT.black)); soft(g, .5, .08, .3, .03, -.3, .48, .19, S.bench);
     g.position.set(c0[0] + nS[0] * .02, 0, c0[1] + nS[1] * .02); g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); addObb(c0[0] + nS[0] * .2, c0[1] + nS[1] * .2, len, .4, nS); }
   // coats and shoes at the coat unit
-  const gd = unit(.970, .2515), nS = [-.2515, .970], c0 = fp(437, 242.4), cm = [S.sofa2, S.throwA, S.pillowB];
+  const gd = unit(.970, .2515), nS = [-.2515, .970], c0 = fp(436.43, 244.6), cm = [S.sofa2, S.throwA, S.pillowB];
   [-.6, -.15, .35].forEach((t, i) => { const g = new THREE.Group(); soft(g, .3, 1.0, .1, .04, 0, 0, 0, cm[i]); cyl(g, .01, .01, .12, 0, .98, 0, MAT.black, 6); g.position.set(c0[0] + gd[0] * t + nS[0] * .17, 0, c0[1] + gd[1] * t + nS[1] * .17); g.position.y = .72; g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); });
   [-.55, -.3].forEach(t => { const g = new THREE.Group(); soft(g, .1, .08, .28, .035, -.07, 0, 0, S.leather); soft(g, .1, .08, .28, .035, .07, 0, 0, S.leather); g.position.set(c0[0] + gd[0] * t + nS[0] * .2, 0, c0[1] + gd[1] * t + nS[1] * .2); g.position.y = .0; g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); });
 }
@@ -1312,6 +1313,35 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
   const P0 = [-3.32, 2.65], v = unit(-.73, 2.91), nn = [-v[1], v[0]];                                                   // building face runs from (-3.32, 2.65) to (-4.05, 5.56); nn points into the recess
   const cx = P0[0] + v[0] * .72 + nn[0] * .15, cz = P0[1] + v[1] * .72 + nn[1] * .15;
   g.position.set(cx, .012, cz); g.rotation.y = Math.atan2(nn[0], nn[1]); furnG.add(g); addObb(cx, cz, 1.2, .3, nn);
+}
+// push furniture out of walls: every group whose sampled vertices lie inside a wall solid is moved along the wall normal (towards the room it stands in) until it touches the wall face
+function resolveFurnWalls(){
+  const inWall = (x, z) => { for (const w of DATA.walls){ if (!pointInRing(x, z, w.outer)) continue; let hole = false; for (const h of (w.holes || [])) if (pointInRing(x, z, h)){ hole = true; break; } if (!hole) return true; } return false; };
+  const edgeDist = (x, z) => { let bd = 1e9; for (const w of DATA.walls){ for (const r of [w.outer].concat(w.holes || [])){ for (let i = 0, n = r.length; i < n; i++){ const a = r[i], b = r[(i + 1) % n], dx = b[0] - a[0], dz = b[1] - a[1], l2 = dx * dx + dz * dz; if (l2 < 1e-9) continue; let t = ((x - a[0]) * dx + (z - a[1]) * dz) / l2; t = Math.max(0, Math.min(1, t)); const d = Math.hypot(x - (a[0] + dx * t), z - (a[1] + dz * t)); if (d < bd) bd = d; } } } return bd; };
+  const v = new THREE.Vector3(), report = [];
+  const sample = c => { const pts = []; c.updateMatrixWorld(true); c.traverse(m => { if (!m.isMesh || !m.geometry || !m.geometry.attributes.position) return; const pa = m.geometry.attributes.position, st = Math.max(1, Math.ceil(pa.count / 400)); for (let k = 0; k < pa.count; k += st){ v.fromBufferAttribute(pa, k).applyMatrix4(m.matrixWorld); if (v.y > -.1 && v.y < 2.0) pts.push([v.x, v.z]); } }); return pts; };
+  const penetrates = (pts, dx, dz) => pts.some(p => { const x = p[0] + dx, z = p[1] + dz; return inWall(x, z) && edgeDist(x, z) > .012; });
+  furnG.children.forEach((c, gi) => {
+    if (!c.userData.snap) return;
+    const pts = sample(c); if (!pts.length || !penetrates(pts, 0, 0)) return;
+    const f = [Math.sin(c.rotation.y), Math.cos(c.rotation.y)]; let found = null;
+    for (let s2 = .01; s2 <= .8 && !found; s2 += .01) for (const sg of [1, -1]) if (!penetrates(pts, f[0] * s2 * sg, f[1] * s2 * sg)){ found = [f[0] * (s2 + .004) * sg, f[1] * (s2 + .004) * sg]; break; }
+    if (!found) return;
+    const bb = [1e9, 1e9, -1e9, -1e9]; pts.forEach(p => { bb[0] = Math.min(bb[0], p[0]); bb[1] = Math.min(bb[1], p[1]); bb[2] = Math.max(bb[2], p[0]); bb[3] = Math.max(bb[3], p[1]); });
+    c.position.x += found[0]; c.position.z += found[1];
+    for (let i = COLL0; i < collSegs.length; i++){ const s3 = collSegs[i]; if (s3[0] > bb[0] - .1 && s3[0] < bb[2] + .1 && s3[1] > bb[1] - .1 && s3[1] < bb[3] + .1 && s3[2] > bb[0] - .1 && s3[2] < bb[2] + .1 && s3[3] > bb[1] - .1 && s3[3] < bb[3] + .1){ s3[0] += found[0]; s3[1] += found[1]; s3[2] += found[0]; s3[3] += found[1]; } }
+    report.push({ gi, push:+Math.hypot(found[0], found[1]).toFixed(3), at:[Math.round((bb[0] + bb[2]) / 2 * PPM + OX), Math.round((bb[1] + bb[3]) / 2 * PPM + OY)] });
+  });
+  window.__furnPushed = report;
+}
+// debug helper (?debug=1): sampled world-space vertices of every furniture group, used to look for collisions with walls
+function snapFurn(root){
+  const out = [], v = new THREE.Vector3();
+  root.children.forEach((c, i) => { c.updateMatrixWorld(true); const pts = [];
+    c.traverse(m => { if (!m.isMesh || !m.geometry || !m.geometry.attributes.position) return; const pa = m.geometry.attributes.position, step = Math.max(1, Math.ceil(pa.count / 600));
+      for (let k = 0; k < pa.count; k += step){ v.fromBufferAttribute(pa, k).applyMatrix4(m.matrixWorld); if (v.y > 0.03 && v.y < 2.0) pts.push([v.x, v.z, v.y]); } });
+    out.push({ i, pts }); });
+  return out;
 }
 // bench next to the entrance hub
 
@@ -1418,6 +1448,8 @@ function levelFor(x, z){                                       // for furniture:
   return bd > 0.45 ? -LV : (best.id === 'wohnen' ? -LV : 0);
 }
 for (const o of furnG.children) if (levelFor(o.position.x, o.position.z) < 0) o.position.y -= LV;
+resolveFurnWalls();
+if (qs.get('debug')) window.__furnSnap = snapFurn(furnG);
 mergeStatic(furnG);
 { // the step itself: a 14 cm riser across the opening between Korridor and Wohnen/Essen/Küche, with a brass nosing
   const o2 = DATA.openings.find(q => q.id === 'O2'), A = o2.a, B = o2.b, L2 = Math.hypot(B[0] - A[0], B[1] - A[1]), u2 = [(B[0] - A[0]) / L2, (B[1] - A[1]) / L2], mid = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2];
