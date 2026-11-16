@@ -1242,7 +1242,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     let c;
     if (VARIANT === 'B'){        // variant 2: shower in the north-west corner, bath towards the window with a gap to the wall, tap in the middle of its window side
       c = rp(.49, .46); { const sh = mkShowerCabin(.9, .9, -1); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .9, .9, N); }
-      c = rp(.75, DD - .35 - .425); { const t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.8, .85, N); }
+      c = rp(1.05, DD - .25 - .425); { const t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.8, .85, N); }
     } else {
       c = rp(.24, DD - .405); { const sh = mkShowerCabin(.8, .8); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .8, .8, N); }       // shower in the south-west corner (window wall)
       c = rp(1.15, .405); { const t = mkFreeTub(1.7, .8); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.7, .8, N); }                                  // freestanding bath along the north wall, moved towards the door
