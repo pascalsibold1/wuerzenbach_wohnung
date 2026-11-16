@@ -1222,20 +1222,20 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
       ring(L - .04, W - .04, .34, .28, .26); ring(L, W, .36, .05, .54);        // walls and rim with the opening
       const tx = L / 2 + .13; cyl(g, .014, .014, .8, tx, 0, 0, MAT.brass, 10); link(g, [tx, .8, 0], [tx - .1, .86, 0], .012, MAT.brass, 8); link(g, [tx - .1, .86, 0], [L / 2 - .2, .8, 0], .012, MAT.brass, 8); cyl(g, .05, .05, .01, tx, 0, 0, MAT.brass, 14);   // floor-standing tap
       return g; };
-    const mkShowerCabin = (w, d) => { const g = new THREE.Group(), FR = MAT.black;
-      soft(g, w, .045, d, .01, 0, 0, 0, S.counter); box(g, .1, .006, .1, -.1, .045, .05, FR);                                            // tray with drain
-      box(g, .012, 2.0, d - .04, w / 2 - .006, .045, -.02, MAT.glass).material = MAT.glass;                                              // fixed side panel
-      box(g, w - .1, 2.0, .012, -.04, .045, d / 2 - .006, MAT.glass).material = MAT.glass;                                              // door panel
-      box(g, .03, 2.05, .03, w / 2 - .015, 0, d / 2 - .015, FR); box(g, .03, 2.05, .03, -w / 2 + .03, 0, d / 2 - .015, FR); box(g, .03, 2.05, .03, w / 2 - .015, 0, -d / 2 + .015, FR);
-      box(g, .012, .03, d, w / 2 - .006, 2.045, 0, FR); box(g, w, .03, .012, 0, 2.045, d / 2 - .006, FR); box(g, .012, .03, d, w / 2 - .006, .0, 0, FR).visible = false;
-      box(g, .02, .35, .02, -w / 2 + .12, .95, d / 2 + .02, MAT.brass);                                                                  // door pull
-      cyl(g, .13, .13, .012, 0, 2.1, -d / 2 + .3, MAT.brass, 24); cyl(g, .012, .012, .3, 0, 2.1, -d / 2 + .15, MAT.brass, 8).rotation.x = Math.PI / 2;   // rain shower head on its arm
-      box(g, .14, .2, .03, w / 2 - .25, 1.0, -d / 2 + .015, MAT.brass); box(g, .02, .5, .02, w / 2 - .12, 1.0, -d / 2 + .02, MAT.brass);  // mixer and hand-shower rail
+    const mkShowerCabin = (w, d) => { const g = new THREE.Group(), FR = MAT.black;       // glass on the east side (door) and the north side (fixed); walls on the south and west side
+      soft(g, w, .045, d, .01, 0, 0, 0, S.counter); box(g, .1, .006, .1, .08, .045, .0, FR);                                           // tray with drain
+      box(g, w - .08, 2.0, .012, .0, .045, -d / 2 + .006, MAT.glass).material = MAT.glass;                                             // fixed panel (north)
+      box(g, .012, 2.0, d - .08, w / 2 - .006, .045, .0, MAT.glass).material = MAT.glass;                                              // door panel (east)
+      [[w / 2 - .015, -d / 2 + .015], [w / 2 - .015, d / 2 - .015]].forEach(p => box(g, .03, 2.05, .03, p[0], 0, p[1], FR));
+      box(g, w, .03, .012, 0, 2.045, -d / 2 + .006, FR); box(g, .012, .03, d, w / 2 - .006, 2.045, 0, FR);
+      box(g, .02, .4, .02, w / 2 + .004, .95, d / 2 - .22, MAT.brass);                                                                  // door pull
+      const px = -w / 2 + .08, pz = d / 2 - .08; cyl(g, .016, .016, 2.12, px, 0, pz, MAT.brass, 10); link(g, [px, 2.12, pz], [0, 2.12, 0], .014, MAT.brass, 8); cyl(g, .13, .13, .012, 0, 2.1, 0, MAT.brass, 24);   // exposed pipe with rain shower head
+      box(g, .16, .2, .06, px, 1.05, pz - .01, MAT.brass); box(g, .03, .3, .03, px + .1, 0.95, pz, MAT.brass);                           // mixer and hand-shower holder
       return g; };
-    let c = rp(.44, .41); { const sh = mkShowerCabin(.8, .8); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .8, .8, N); }
-    c = rp(.7, 1.207); { const t = mkFreeTub(1.7, .8); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.7, .8, N); }
-    c = rp(1.93, 1.247); addF(mkWC(.84), c[0], c[1], [-N[0], -N[1]], [.4, .6]).userData.snap = 1;      // opposite the vanity, against the grey parapet of the window wall (low cistern, stays below the window board)
-    c = rp(2.75, .9); { const mt = new THREE.Group(); soft(mt, .9, .03, .55, .015, 0, 0, 0, S.towel); place(mt, c[0], c[1], N); furnG.add(mt); }
+    let c = rp(.24, 1.207); { const sh = mkShowerCabin(.8, .8); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .8, .8, N); }       // shower now in the south-west corner (window wall)
+    c = rp(1.15, .405); { const t = mkFreeTub(1.7, .8); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.7, .8, N); }                                  // freestanding bath along the north wall, moved towards the door
+    c = rp(2.72, 1.247); addF(mkWC(1.0), c[0], c[1], [-N[0], -N[1]], [.4, .6]).userData.snap = 1;                                                                  // WC opposite the vanity against the south wall
+    c = rp(1.4, 1.15); { const mt = new THREE.Group(); soft(mt, .9, .03, .55, .015, 0, 0, 0, S.towel); place(mt, c[0], c[1], N); furnG.add(mt); }
   }
   { const px = [466.3, 372.5], w = wallPlace('bad', px, .42), v = mkVanity(.9, 1, .42, .27); place(v, w.x, w.z, w.n); v.userData.snap = 1; furnG.add(v); addObb(w.x, w.z, .9, .42, w.n);     // single larger basin, in the corner next to the door
     const wm = wallPlace('bad', px, .03), m = mkMirror(.7, .9); place(m, wm.x, wm.z, wm.n, 1.25); m.userData.snap = 1; furnG.add(m);
