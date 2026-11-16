@@ -1066,16 +1066,16 @@ function mkPlant(s = 1, kind = 0){
   const r = rnd32(9 + kind * 3); for (let i = 0; i < 18; i++){ const a = r() * 6.28, h = (.4 + r() * 1.0) * s; const l = sph(g, .17 * s, Math.cos(a) * .17 * s * (.4 + r()), .35 * s + h, Math.sin(a) * .17 * s * (.4 + r()), r() > .5 ? MAT.leaf : MAT.leaf2, .55, 1.1, .12); l.rotation.set((r() - .5) * .8, a, (r() - .5) * .8); }
   link(g, [0, .34 * s, 0], [0, .34 * s + .85 * s, 0], .012 * s, clr(0x5c4631, 1), 6); return g;
 }
-function mkCurtain(b, sides, topY, ceilCheck){        // pleated floor-length drapes at the sides of a window bay (b.a, b.u point along the facade, b.n outward)
+function mkCurtain(b, sides, topY, ceilCheck, limL = .5){        // pleated floor-length drapes at the sides of a window bay (b.a, b.u point along the facade, b.n outward)
   const u = b.u, n = b.n, len = b.len, rotY = -Math.atan2(u[1], u[0]), mid = [b.a[0] + u[0] * len / 2 - n[0] * .08, b.a[1] + u[1] * len / 2 - n[1] * .08], g = new THREE.Group();
   g.position.set(mid[0], 0, mid[1]); g.rotation.y = rotY; const h = topY - .02, ext = [];
-  if (sides.includes('L')) ext.push([-.5, .4]); if (sides.includes('R')) ext.push([len - .4, len + .5]);
+  if (sides.includes('L')) ext.push([-limL, .4]); if (sides.includes('R')) ext.push([len - .4, len + .5]);
   ext.forEach(([t0, t1]) => {
     const w = t1 - t0, geo = new THREE.PlaneGeometry(w, h, Math.max(10, Math.round(w / .045)), 1), p = geo.attributes.position;
     for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin((p.getX(i) + w / 2) * 54) * .03 * (1 - .4 * (p.getY(i) / h + .5)));
     geo.computeVertexNormals(); const m = new THREE.Mesh(geo, S.curtain); m.position.set((t0 + t1) / 2 - len / 2, .02 + h / 2, 0); m.castShadow = true; m.receiveShadow = true; g.add(m);
   });
-  const x0 = Math.min(...ext.map(e => e[0])) - .05, x1 = Math.max(...ext.map(e => e[1])) + .05; link(g, [x0 - len / 2, topY + .04, 0], [x1 - len / 2, topY + .04, 0], .011, MAT.brass, 8); [x0, x1].forEach(x => sph(g, .028, x - len / 2, topY + .04, 0, MAT.brass));
+  const x0 = Math.min(...ext.map(e => e[0])) - (limL < .5 ? .0 : .05), x1 = Math.max(...ext.map(e => e[1])) + .05; link(g, [x0 - len / 2, topY + .04, 0], [x1 - len / 2, topY + .04, 0], .011, MAT.brass, 8); [x0, x1].forEach(x => sph(g, .028, x - len / 2, topY + .04, 0, MAT.brass));
   return g;
 }
 
@@ -1199,7 +1199,7 @@ function bedroom(bedPt, footDir, W, L, o = {}){
 // curtains: both sides in the bedrooms, outer edges only in the living room (the piers between the windows stay free for art)
 {
   const bay = id => DATA.bays.find(b => b.id === id), add = (g, y = 0) => { furnG.add(g); };
-  [['N1', 'LR', 3.04], ['N2', 'LR', 3.04], ['S2', 'LR', 3.04], ['N3', 'L', 3.18], ['N4', 'R', 3.18], ['S3', 'L', 3.18], ['S4', 'R', 3.18]].forEach(([id, sides, top]) => add(mkCurtain(bay(id), sides, top)));
+  [['N1', 'LR', 3.04], ['N2', 'LR', 3.04], ['S2', 'LR', 3.04, .05], ['N3', 'L', 3.18], ['N4', 'R', 3.18], ['S3', 'L', 3.18], ['S4', 'R', 3.18]].forEach(([id, sides, top, lim]) => add(mkCurtain(bay(id), sides, top, false, lim)));
 }
 // bathrooms
 function mkTub(){ const g = new THREE.Group(); soft(g, .8, .56, 1.62, .07, 0, 0, 0, MAT.ceramic); const inner = soft(g, .64, .05, 1.46, .03, 0, .545, 0, MAT.ceramic); inner.scale.y = .4; link(g, [0, .56, -.74], [0, .78, -.74], .012, MAT.brass, 8); link(g, [0, .78, -.74], [0, .78, -.62], .01, MAT.brass, 8);
