@@ -1280,8 +1280,8 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
   }
   { const by = VB ? 13.5 : 0, px = [466.3, 372.5 - by], w = wallPlace('bad', [466.3 - .1 * 22.677, px[1]], .42), v = mkVanity(1.1, 1, .42, .27); place(v, w.x, w.z, w.n); v.userData.snap = 1; furnG.add(v); addObb(w.x, w.z, 1.1, .42, w.n);     // single larger basin, in the corner next to the door
     const wm = wallPlace('bad', [466.3 - .1 * 22.677, px[1]], .03), m = mkMirrorArch(.9, 1.0); place(m, wm.x, wm.z, wm.n, 1.2); m.userData.snap = 1; furnG.add(m);
-    const ws = wallPlace('bad', [466.3 - .76 * 22.677, 372.5 - by], .04), pd = new THREE.Group();      // glass globe pendant beside the mirror
-    cyl(pd, .004, .004, CEIL - 1.85, 0, 1.85, 0, MAT.black, 4); cyl(pd, .022, .022, .05, 0, 1.94, 0, MAT.black, 10); sph(pd, .1, 0, 1.85, 0, MAT.glass, 1, 1, 1); sph(pd, .045, 0, 1.85, 0, MAT.emit, 1, 1, 1); pd.position.set(ws.x + ws.n[0] * .28, 0, ws.z + ws.n[1] * .28); pd.userData.snap = 0; furnG.add(pd); }
+    const ws = wallPlace('bad', [466.3 - .76 * 22.677, 372.5 - by], .04), pd = new THREE.Group();      // glass globe pendant centred above the vanity
+    cyl(pd, .004, .004, CEIL - 2.1, 0, 2.1, 0, MAT.black, 4); cyl(pd, .022, .022, .05, 0, 2.19, 0, MAT.black, 10); sph(pd, .1, 0, 2.1, 0, MAT.glass, 1, 1, 1); sph(pd, .045, 0, 2.1, 0, MAT.emit, 1, 1, 1); pd.position.set(w.x + w.n[0] * .04, 0, w.z + w.n[1] * .04); pd.userData.snap = 0; furnG.add(pd); }
   // DU/WC
   q = fp(307.2, 325.9); addF(mkShower(), q[0], q[1], [1, 0], [.9, 1.1]);
   q = fp(330.0, 312.6); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
