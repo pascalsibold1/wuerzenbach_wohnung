@@ -1111,48 +1111,51 @@ const DARKWOOD = (() => { const wg = cached('woodGrain', genWoodGrain); return s
 const CHAIRV = (() => { const m = phys({ color:0xffffff, roughness:1, sheen:.5, sheenRoughness:.8, sheenColor:new THREE.Color(0x222222), side:THREE.DoubleSide }); fab(m, 'velvet', 0x131415); return m; })();      // black velvet dining chairs
 /* ---------- kitchen along the west wall of the living room, with stone worktop, full-height stone splash back and appliances ---------- */
 function mkKitchenRun(){
-  const A = fp(621.2, 205.3), B = fp(598.0, 296.5), u = unit(B[0] - A[0], B[1] - A[1]), nw = [-.9701, -.2427], depth = .62, L = Math.hypot(B[0] - A[0], B[1] - A[1]), rotY = -Math.atan2(u[1], u[0]);
-  const pt = (s, o) => [A[0] + u[0] * s + nw[0] * o, A[1] + u[1] * s + nw[1] * o];
-  const slab = (s0, s1, y, h, mat, d, off) => { const c = pt((s0 + s1) / 2, off); return box(furnG, s1 - s0, h, d, c[0], y, c[1], mat, rotY); };
-  const base = (s0, s1) => { slab(s0, s1, .06, .8, MAT.oak, depth, depth / 2); slab(s0, s1, 0, .05, MAT.black, depth - .06, depth / 2); [.3, .55].forEach(y => { const c = pt((s0 + s1) / 2, depth + .003); box(furnG, s1 - s0 - .012, .005, .004, c[0], y, c[1], MAT.black, rotY); }); };
-  const tall = (s0, s1) => slab(s0, s1, 0, 2.35, S.front, depth, depth / 2);
-  tall(.02, .72); base(.72, 1.0); base(1.0, 1.84); base(1.84, 2.62); base(2.62, 3.4); tall(3.4, L - .02);
-  // fridge-freezer doors and oven tower
-  slab(.04, .7, .07, .66, MAT.steel, .02, depth + .01); slab(.04, .7, .79, 1.5, MAT.steel, .02, depth + .01); { const c = pt(.62, depth + .035); link(furnG, [c[0], .4, c[1]], [c[0], 1.0, c[1]], .012, MAT.chrome, 8); link(furnG, [c[0], 1.2, c[1]], [c[0], 2.0, c[1]], .012, MAT.chrome, 8); }
-  slab(3.42, L - .04, .95, .56, glassBlack, .02, depth + .01); slab(3.42, L - .04, 1.58, .5, glassBlack, .02, depth + .01); slab(3.42, L - .04, .35, .3, glassBlack, .02, depth + .01);
-  { const s = (3.4 + L) / 2; [1.55, 2.16, .7].forEach(y => { const c = pt(s, depth + .035); box(furnG, L - 3.5, .014, .014, c[0], y, c[1], MAT.chrome, rotY); }); }
-  // worktop, splash back, floating shelves
-  slab(.72, 3.4, .86, .04, KSTONE, depth + .03, depth / 2 + .01); slab(.72, 3.4, .9, 1.45, KSTONE, .02, .01);
-  [[1.3, 1.5], [2.75, 1.85]].forEach(([s, y]) => { slab(s - .6, s + .6, y, .04, MAT.oak, .22, .12); });
-  // sink + brass tap
-  { const c = pt(1.42, depth / 2); box(furnG, .74, .012, .42, c[0], .9, c[1], MAT.steel, rotY); const t = pt(1.42, .12), t2 = pt(1.42, .26); link(furnG, [t[0], .9, t[1]], [t[0], 1.2, t[1]], .013, MAT.brass, 10); link(furnG, [t[0], 1.2, t[1]], [t2[0], 1.17, t2[1]], .011, MAT.brass, 8); }
+  // linear kitchen along the west wall of the living room: fridge tower, drawers, sink, dishwasher, hob with extractor hood, oven tower, wall cabinets, limestone worktop and splash back
+  const KSTEEL = std({ color:0xbfc3c6, roughness:.42, metalness:.25 });      // brushed stainless steel
+  const A = fp(621.2, 205.3), B = fp(598.0, 296.5), u = unit(B[0] - A[0], B[1] - A[1]), nw = [-.9701, -.2427], depth = .585, L = Math.hypot(B[0] - A[0], B[1] - A[1]), rotY = -Math.atan2(u[1], u[0]);
+  const pt = (s, o) => [A[0] + u[0] * s + nw[0] * o, A[1] + u[1] * s + nw[1] * o];             // s along the wall, o from the front line (A-B) towards the wall
+  const pw = (s, ow) => pt(s, depth - ow);                                                       // ow = distance from the wall (0 = wall, depth = front)
+  const slab = (s0, s1, y, h, mat, d, ow0 = 0) => { const c = pw((s0 + s1) / 2, ow0 + d / 2); return box(furnG, s1 - s0, h, d, c[0], y, c[1], mat, rotY); };
+  const face = (s0, s1, y, h, mat) => slab(s0, s1, y, h, mat, .018, depth);                      // panel in front of a carcass
+  const hline = (s0, s1, y) => slab(s0 + .01, s1 - .01, y, .004, MAT.black, .004, depth - .002);    // joint between drawers
+  const vline = (s, y0, y1) => slab(s - .002, s + .002, y0, y1 - y0, MAT.black, .004, depth - .002);
+  const bar = (s, y, w = .3) => slab(s - w / 2, s + w / 2, y, .012, MAT.black, .02, depth);       // horizontal handle
+  const vbar = (s, y, h = .4) => slab(s - .007, s + .007, y, h, MAT.black, .02, depth);          // vertical handle
+  const tall = (s0, s1) => slab(s0, s1, 0, 2.35, S.front, depth, 0);
+  const base = (s0, s1) => { slab(s0, s1, .06, .8, MAT.oak, depth, 0); slab(s0, s1, 0, .06, MAT.black, depth - .06, 0); };
+  // fridge-freezer tower
+  tall(.02, .68); face(.04, .66, .07, .66, KSTEEL); face(.04, .66, .79, 1.5, KSTEEL); { const c = pw(.6, depth + .05); link(furnG, [c[0], .4, c[1]], [c[0], 1.0, c[1]], .012, MAT.chrome, 8); link(furnG, [c[0], 1.2, c[1]], [c[0], 2.0, c[1]], .012, MAT.chrome, 8); }
+  // base units: three drawers | sink cabinet | dishwasher | hob drawers
+  base(.68, 1.28); hline(.68, 1.28, .56); hline(.68, 1.28, .31); [.81, .51, .26].forEach(y => bar(.98, y, .3));
+  base(1.28, 2.18); vline(1.73, .06, .86); vbar(1.69, .42); vbar(1.77, .42);
+  base(2.18, 2.78); face(2.2, 2.76, .08, .76, KSTEEL); bar(2.48, .8, .4); slab(2.2, 2.76, .835, .012, glassBlack, .02, depth + .018);
+  base(2.78, 3.48); hline(2.78, 3.48, .46); [.81, .41].forEach(y => bar(3.13, y, .4));
+  // oven tower: oven, steam oven, warming drawer
+  tall(3.48, L - .02); face(3.5, L - .04, .95, .56, glassBlack); face(3.5, L - .04, 1.58, .5, glassBlack); face(3.5, L - .04, .35, .3, glassBlack); [.7, 1.55, 2.16].forEach(y => slab(3.5, L - .04, y, .014, MAT.chrome, .014, depth + .018));
+  // worktop and splash back in sandy limestone (back against the wall), higher behind the hob
+  slab(.68, 3.48, .86, .04, KSTONE, depth + .03, 0); slab(.68, 3.48, .9, .6, KSTONE, .02, 0); slab(2.78, 3.48, 1.5, .85, KSTONE, .02, 0);
+  // wall cabinets
+  [[.68, 1.28], [1.28, 2.18], [2.18, 2.78]].forEach(([s0, s1]) => { slab(s0 + .003, s1 - .003, 1.5, .7, MAT.oak, .35, .02); slab(s0 + .02, s1 - .02, 1.5, .012, ledMat, .02, .3); });
+  // hob with four burners and extractor hood
+  slab(2.84, 3.42, .9, .008, glassBlack, .52, .06); [[3.0, .17], [3.26, .17], [3.0, .39], [3.26, .39]].forEach(([s, ow]) => { const c = pw(s, ow), r = new THREE.Mesh(new THREE.TorusGeometry(.07, .004, 6, 24), KSTEEL); r.rotation.x = Math.PI / 2; r.position.set(c[0], .912, c[1]); furnG.add(r); });
+  slab(2.82, 3.44, 1.44, .09, glassBlack, .5, .02); slab(3.02, 3.24, 1.53, .9, glassBlack, .26, .02);
+  // sink with tap
+  slab(1.36, 2.1, .9, .012, KSTEEL, .42, .08); slab(1.7, 1.76, .905, .004, MAT.black, .06, .26);
+  { const c1 = pw(1.73, .075), c2 = pw(1.73, .23); link(furnG, [c1[0], .9, c1[1]], [c1[0], 1.2, c1[1]], .013, MAT.brass, 10); link(furnG, [c1[0], 1.2, c1[1]], [c2[0], 1.17, c2[1]], .011, MAT.brass, 8); const lv = pw(1.73, .075); box(furnG, .015, .015, .07, lv[0], 1.0, lv[1], MAT.brass, rotY); }
   // things on the worktop
-  const on = (s, o) => pt(s, o);
-  { let c = on(.9, .22); box(furnG, .1, .2, .14, c[0], .9, c[1], MAT.oak, rotY); c = on(2.0, .3); box(furnG, .46, .02, .3, c[0], .9, c[1], MAT.oak, rotY + .1); sph(furnG, .035, c[0], .945, c[1], fruit[1]); sph(furnG, .035, c[0] + .05, .945, c[1] + .03, fruit[1]);
-    c = on(2.3, .22); box(furnG, .28, .36, .3, c[0], .9, c[1], MAT.steel, rotY); box(furnG, .26, .06, .28, c[0], 1.0, c[1], MAT.black, rotY);
-    c = on(2.9, .32); const bg = new THREE.Group(); bowl(bg, 0, 0, 0, .19, MAT.ceramicD, true); bg.position.set(c[0], .9, c[1]); furnG.add(bg);
-    c = on(3.22, .2); [0, 1].forEach(i => cyl(furnG, .035, .04, .26, c[0] + u[0] * i * .09, .9, c[1] + u[1] * i * .09, i ? MAT.chrome : clr(0x4a6a3a, .3), 12)); c = on(1.15, .3); const pg = new THREE.Group(); pg.position.set(c[0], .9, c[1]); furnG.add(pg); cyl(pg, .06, .05, .1, 0, 0, 0, MAT.pot, 16); for (let i = 0; i < 6; i++){ const a = i * 1.05; sph(pg, .035, Math.cos(a) * .04, .16, Math.sin(a) * .04, MAT.leaf2, 1, 1.4, 1); } }
-  // shelf decor
-  { let c = on(1.0, .14), g1 = new THREE.Group(); g1.position.set(c[0], 1.54, c[1]); furnG.add(g1); vase(g1, 0, 0, 0, .22, .06); vase(g1, .22 * u[0] + .0, 0, .22 * u[1] + .0, .15, .05); bowl(g1, -.3 * u[0], 0, -.3 * u[1], .1, MAT.ceramicD, false);
-    c = on(2.75, .14); const g2 = new THREE.Group(); g2.position.set(c[0], 1.89, c[1]); furnG.add(g2); for (let i = 0; i < 4; i++) cyl(g2, .035, .03, .1, (i - 1.5) * .11 * u[0], 0, (i - 1.5) * .11 * u[1], MAT.ceramic, 14); const pl = mkPlant(.45, 7); pl.position.set(.38 * u[0], 0, .38 * u[1]); g2.add(pl); }
-  addRingSegs([pt(0, 0), pt(L, 0), pt(L, depth), pt(0, depth)]);
-}
-function mkIsland(){
-  const g = new THREE.Group(), L = 2.4, Wd = .9;
-  box(g, 1.0, .94, L, .05, 0, 0, KSTONE);                  // one solid rectangular limestone block
-  box(g, .58, .008, .52, -.02, .94, -.62, glassBlack);
-  [[-.14, -.72], [.14, -.72], [-.14, -.52], [.14, -.52]].forEach(p => { const r = new THREE.Mesh(new THREE.TorusGeometry(.07, .004, 6, 24), MAT.steel); r.rotation.x = Math.PI / 2; r.position.set(p[0] - .02, .946, p[1]); g.add(r); });
-  const bg = new THREE.Group(); bg.position.set(.14, .94, .62); bowl(bg, 0, 0, 0, .2, MAT.ceramicD, true); g.add(bg);
-  vase(g, .22, .94, .12, .2, .06); flowers(g, .22, 1.12, .12, .7, .3); candle(g, .1, .94, -.1, .09, .03); box(g, .4, .02, .26, .2, .94, .22 - .0 + .55, MAT.oak, .1).visible = false;
-  return g;
+  { let c = pw(.9, .36); const bg = new THREE.Group(); bowl(bg, 0, 0, 0, .19, MAT.ceramicD, true); bg.position.set(c[0], .9, c[1]); furnG.add(bg);
+    c = pw(.82, .14); box(furnG, .26, .36, .26, c[0], .9, c[1], KSTEEL, rotY); box(furnG, .24, .05, .24, c[0], 1.02, c[1], MAT.black, rotY);                          // coffee machine
+    c = pw(2.42, .3); box(furnG, .46, .02, .3, c[0], .9, c[1], MAT.oak, rotY + .1); sph(furnG, .035, c[0], .945, c[1], fruit[1]);                                           // chopping board
+    c = pw(2.65, .1); [0, 1].forEach(i => cyl(furnG, .035, .04, .26, c[0] + u[0] * i * .09, .9, c[1] + u[1] * i * .09, i ? MAT.chrome : clr(0x4a6a3a, .3), 12));
+    c = pw(2.05, .1); const pg = new THREE.Group(); pg.position.set(c[0], .9, c[1]); furnG.add(pg); cyl(pg, .06, .05, .1, 0, 0, 0, MAT.pot, 16); for (let i = 0; i < 6; i++){ const a = i * 1.05; sph(pg, .035, Math.cos(a) * .04, .16, Math.sin(a) * .04, MAT.leaf2, 1, 1.4, 1); } }
+  addRingSegs([pt(0, 0), pt(L, 0), pt(L, depth + .03), pt(0, depth + .03)]);
 }
 
 /* ---------- place everything ---------- */
 mkKitchenRun();
 {
-  const c = fp(636.7, 278.3), g = mkIsland(), ax = unit(-.2467, .9691);
-  g.position.set(c[0], 0, c[1]); g.rotation.y = Math.atan2(ax[0], ax[1]); furnG.add(g); addObb(c[0] + .05 * ax[1], c[1] - .05 * ax[0], 1.0, 2.4, ax, 0);
-  [-.7, 0, .7].forEach(t => { const d2 = mkPendantDome(); d2.position.set(c[0] + ax[0] * t, 0, c[1] + ax[1] * t); furnG.add(d2); });
+  const ax = unit(-.2467, .9691);
   const rk = mkRugLux(S.rugR, .62, 2.3, 'runner'), rc = fp(615.6, 273.4); rk.position.set(rc[0], 0, rc[1]); rk.rotation.y = -Math.atan2(ax[1], ax[0]); rk.rotation.y += Math.PI / 2; furnG.add(rk);
 }
 // dining: rug, set table, six chairs, chandelier
