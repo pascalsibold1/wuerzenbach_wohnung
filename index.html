@@ -468,6 +468,7 @@ MAT.skirt = std({ color:0xf7f6f3, roughness:.5 });
 MAT.parquet = std({ color:0xffffff, map:TEX.parquet, roughness:.5 });
 MAT.tileFloor = std({ color:0xffffff, map:TEX.tile, roughness:.38 });
 MAT.tileWall = std({ color:0xf4f2ee, map:TEX.tile, roughness:.3 });
+MAT.limeFloor = std({ color:0xeee5d6, roughness:.62 }); MAT.limeWall = std({ color:0xffffff, roughness:.55 });      // sandy limestone tiles of the two bathrooms (maps are assigned with the style)
 MAT.terrace = std({ color:0xffffff, map:TEX.terrace, roughness:.85 });
 MAT.lawn = std({ color:0xffffff, map:TEX.lawn, roughness:1 });
 MAT.ground = std({ color:0xffffff, map:TEX.ground, roughness:1 });
@@ -570,12 +571,12 @@ const uvTile = (x, z) => [x / 1.2, z / 1.2];
 const roomById = {};
 for (const r of DATA.rooms){
   roomById[r.id] = r;
-  const fl = flatPoly(r.outer, r.holes, r.id === 'wohnen' ? -LV : 0, true, r.floor === 'oak' ? MAT.parquet : MAT.tileFloor, r.floor === 'oak' ? uvOak : uvTile); fl.userData.floor = true; floorG.add(fl);
+  const fl = flatPoly(r.outer, r.holes, r.id === 'wohnen' ? -LV : 0, true, r.floor === 'oak' ? MAT.parquet : (r.id === 'bad' || r.id === 'duwc' ? MAT.limeFloor : MAT.tileFloor), r.floor === 'oak' ? uvOak : uvTile); fl.userData.floor = true; floorG.add(fl);
   const ce = flatPoly(r.outer, r.holes, CEIL, false, MAT.ceiling); roofG.add(ce);
   const rf = flatPoly(r.outer, r.holes, H_SLAB, true, MAT.roof, (x, z) => [x / 3, z / 3]); roofG.add(rf);
   // wall finishes from the traced wall runs
   const tiled = r.floor === 'tile' && r.id !== 'reduit' && r.id !== 'wc';     // both Reduits have painted walls, only the floor is tiled
-  if (tiled) r.runs.forEach(u => wallG.add(strip(u.a, u.b, u.n, 0, 2.2, MAT.tileWall, 1.2)));
+  if (tiled){ const lime = r.id === 'bad' || r.id === 'duwc'; r.runs.forEach(u => wallG.add(strip(u.a, u.b, u.n, 0, lime ? CEIL : 2.2, lime ? MAT.limeWall : MAT.tileWall, 1.2))); }      // bathrooms: limestone up to the ceiling
 }
 // accent walls behind the beds (nearest wall run to the bed head)
 function nearestRun(room, pt){
@@ -630,6 +631,7 @@ for (const b of DATA.bays){
   const a = b.a, u = b.u, n = b.n, len = b.len, g = b.glassOff, rotY = -Math.atan2(u[1], u[0]);
   const W = (t, off) => [a[0] + u[0] * t + n[0] * off, a[1] + u[1] * t + n[1] * off];
   if (b.sill > 0) wallG.add(prism(b.quad, null, -LV, b.sill, MAT.plaster));
+  { const mid = [a[0] + u[0] * len / 2 - n[0] * .06, a[1] + u[1] * len / 2 - n[1] * .06]; if (b.sill > 0 && ['bad', 'duwc'].some(id => roomById[id] && pointInRing(mid[0], mid[1], roomById[id].outer))) wallG.add(strip(a, [a[0] + u[0] * len, a[1] + u[1] * len], [-n[0], -n[1]], 0, b.sill, MAT.limeWall, 1.2)); }      // limestone below the bathroom windows
   wallG.add(prism(b.quad, null, b.head, H_WALL, MAT.plaster)); roofG.add(prism(b.quad, null, H_WALL, H_SLAB, [MAT.roof, MAT.plaster]));
   const gp = W(len / 2, g), gh = b.head - b.sill, gy = (b.sill + b.head) / 2;
   const grp = new THREE.Group(); wallG.add(grp);
@@ -873,6 +875,17 @@ function genSubway(){
   }, 2.5, 1);
 }
 
+/* ---------- sandy limestone: 60 x 60 cm tiles with thin joints, soft clouds and small pores (bathrooms) ---------- */
+function genLimestone(){
+  const N = 1024, n1 = tileNoise(201), n2 = tileNoise(202), n3 = tileNoise(203), r = rnd32(204), tone = []; for (let i = 0; i < 4; i++) tone.push(0.95 + r() * 0.09);
+  return buildMaps(N, (u, v, o, px, py) => {
+    const t = tone[Math.floor(v * 2) * 2 + Math.floor(u * 2)], cloud = fbmN(n1, u, v, 3, 3, 4), mott = fbmN(n2, u, v, 10, 10, 3), pit = n3(u, v, 120), fine = n3(fract(u + 0.3), fract(v + 0.6), 160);
+    let L = (0.93 + 0.06 * cloud + 0.04 * mott) * t; const sp = sstep(0.4, 0.62, pit) * (0.5 + 0.5 * sstep(0, 0.4, fine)); L *= 1 - 0.07 * sp; L *= 1 + 0.03 * sstep(0.45, 0.7, -fine);
+    const ex = Math.min(px % 512, 512 - (px % 512)), ey = Math.min(py % 512, 512 - (py % 512)), edge = Math.min(ex, ey), gv = edge < 3 ? 0.8 : 1; L *= gv;
+    o.r = Math.min(255, 224 * L); o.g = Math.min(255, 208 * L); o.b = Math.min(255, 180 * L); o.h = gv < 1 ? 0 : 0.55 + 0.25 * cloud - 0.12 * sp;
+  }, 1.6, 1);
+}
+
 /* ---------- semantic materials (what the style switch re-colours) ---------- */
 const phys = o => new THREE.MeshPhysicalMaterial(o);
 const S = {};
@@ -902,6 +915,7 @@ function applyStyle(i){
   [MAT.oak, MAT.oakDark].forEach(m => { m.map = wg.map; m.normalMap = wg.normal; m.normalScale.set(0.8, 0.8); m.needsUpdate = true; });
   MAT.oak.color.set(st.wood); MAT.oakDark.color.set(st.woodD);
   MAT.tileFloor.color.set(st.tile); MAT.tileWall.color.set(st.tileWall);
+  { const lm = cached('limestone', genLimestone); [MAT.limeFloor, MAT.limeWall].forEach(m => { m.map = lm.map; m.normalMap = lm.normal; m.normalScale.set(.8, .8); m.needsUpdate = true; }); }
   S.front.color.set(st.front.color); S.front.roughness = st.front.rough;
   MAT.brass.color.set(st.brass.color); MAT.brass.roughness = st.brass.rough; MAT.brass.metalness = st.brass.metal;
   stoneApply(S.counter, st.stone);
@@ -960,6 +974,9 @@ function wineGlass(parent, x, y, z){ lathe(parent, [[0, 0], [.035, 0], [.036, .0
 const COLL0 = collSegs.length;     // collision segments before this index belong to walls/outdoors, after it to furniture
 function mkRugLux(mat, w, d, kind){ const g = new THREE.Group(); rugMat(mat, w, d, kind || (d > w * 1.6 || w > d * 1.6 ? 'wide' : 'wide')); const m = box(g, w, .016, d, 0, 0, 0, mat); m.castShadow = false; return g; }
 function mkRoundMirror(r){ const g = new THREE.Group(), f = new THREE.Mesh(new THREE.TorusGeometry(r, .018, 10, 48), MAT.brass); f.position.set(0, r, 0); g.add(f); const m = new THREE.Mesh(new THREE.CircleGeometry(r, 48), MAT.mirror); m.position.set(0, r, -.004); g.add(m); return g; }
+function mkMirrorArch(w, h){ const g = new THREE.Group(), shp = (ww, hh, y0) => { const s = new THREE.Shape(), q = ww / 2; s.moveTo(-q, y0); s.lineTo(q, y0); s.lineTo(q, y0 + hh - q); s.absarc(0, y0 + hh - q, q, 0, Math.PI, false); s.lineTo(-q, y0); return s; };       // arched mirror in an oak frame
+  const fr = new THREE.Mesh(new THREE.ExtrudeGeometry(shp(w, h, 0), { depth:.03, bevelEnabled:false, curveSegments:28 }), MAT.oak); fr.position.z = -.0125; fr.castShadow = true; g.add(fr);
+  const m = new THREE.Mesh(new THREE.ShapeGeometry(shp(w - .06, h - .06, .03), 28), MAT.mirror); m.position.z = .0185; g.add(m); return g; }
 function mkMirror(w, h){ const g = new THREE.Group(); box(g, w + .04, h + .04, .025, 0, 0, 0, MAT.brass); const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), MAT.mirror); m.position.set(0, h / 2 + .02, .014); g.add(m); return g; }
 function mkArt(w, h, kind){
   const g = new THREE.Group(); box(g, w, h, .035, 0, 0, 0, S.frame);
@@ -1210,12 +1227,13 @@ function bedroom(bedPt, footDir, W, L, o = {}){
   [['N1', 'LR', 3.04], ['N2', 'LR', 3.04], ['S2', 'LR', 3.04, .05], ['N3', 'L', 3.18], ['N4', 'R', 3.18], ['S3', 'L', 3.18], ['S4', 'R', 3.18]].forEach(([id, sides, top, lim]) => add(mkCurtain(bay(id), sides, top, false, lim)));
 }
 // bathrooms
+const JUTE = (() => { const wt = cached('wicker', () => buildMaps(256, (u, v, o, px, py) => { const a = ((px >> 2) + (py >> 2)) & 1, h = a ? 0.5 + 0.5 * Math.sin(px * Math.PI / 2) : 0.5 + 0.5 * Math.sin(py * Math.PI / 2); o.r = o.g = o.b = 255 * Math.min(1, 0.74 + 0.26 * h); o.h = h; }, 2.6, 1)), t = wt.map.clone(), n = wt.normal.clone(); [t, n].forEach(x => { x.repeat.set(2.6, 1.6); x.needsUpdate = true; }); return std({ color:0xcdb48a, map:t, normalMap:n, roughness:1 }); })();      // jute bath mats
 function mkTub(){ const g = new THREE.Group(); soft(g, .8, .56, 1.62, .07, 0, 0, 0, MAT.ceramic); const inner = soft(g, .64, .05, 1.46, .03, 0, .545, 0, MAT.ceramic); inner.scale.y = .4; link(g, [0, .56, -.74], [0, .78, -.74], .012, MAT.brass, 8); link(g, [0, .78, -.74], [0, .78, -.62], .01, MAT.brass, 8);
   box(g, .74, .02, .2, 0, .565, .15, MAT.oak); candle(g, -.2, .585, .15, .1, .03); bookStack(g, .15, .585, .15, 2, .1); box(g, .3, .12, .2, .0, .0, .0, MAT.black).visible = false; return g; }
 function mkWC(h = 1.0){ const g = new THREE.Group(); box(g, .4, h, .12, 0, 0, -.3, MAT.white); soft(g, .37, .36, .55, .12, 0, .35, -.02, MAT.ceramic); box(g, .2, .02, .1, 0, h - .02, -.25, MAT.brass); return g; }
-function mkVanity(w, bowls, d = .5, br = .2){ const g = new THREE.Group(); soft(g, w, .4, d, .012, 0, .45, 0, MAT.oak); box(g, w + .02, .04, d + .02, 0, .85, 0, S.counter); for (let i = 0; i < bowls; i++){ const x = bowls === 1 ? 0 : (i - .5) * (w * .5); sph(g, br, x, .89, .02, MAT.ceramic, 1, .25, .7); link(g, [x, .89, -(d / 2 - .05)], [x, 1.08, -(d / 2 - .05)], .011, MAT.brass, 8); link(g, [x, 1.08, -(d / 2 - .05)], [x, 1.07, -(d / 2 - .15)], .009, MAT.brass, 8); }
+function mkVanity(w, bowls, d = .5, br = .2){ const g = new THREE.Group(); soft(g, w, .4, d, .012, 0, .45, 0, MAT.oak); box(g, w + .02, .04, d + .02, 0, .85, 0, MAT.oak); for (let i = 0; i < bowls; i++){ const x = bowls === 1 ? 0 : (i - .5) * (w * .5); soft(g, Math.min(.56, w * (bowls > 1 ? .38 : .5)), .14, d - .12, .045, x, .89, .04, MAT.ceramic); link(g, [x, .89, -(d / 2 - .05)], [x, 1.08, -(d / 2 - .05)], .011, MAT.brass, 8); link(g, [x, 1.08, -(d / 2 - .05)], [x, 1.07, -(d / 2 - .15)], .009, MAT.brass, 8); }
   const tx = bowls > 1 ? w / 2 - .2 : w / 2 - .09; box(g, bowls > 1 ? .2 : .13, .016, .14, tx, .89, 0, MAT.brass); candle(g, tx - (bowls > 1 ? .04 : .02), .906, 0, .08, .025); vase(g, tx + (bowls > 1 ? .06 : .02), .906, .02, .1, .03); return g; }
-function mkShower(){ const g = new THREE.Group(); box(g, .9, .025, 1.1, 0, 0, 0, S.counter); box(g, .02, 2.0, 1.1, .46, 0, 0, MAT.glass).material = MAT.glass; box(g, .025, .02, 1.1, .46, 2.0, 0, MAT.brass); cyl(g, .12, .12, .012, 0, 2.15, -.5, MAT.brass); cyl(g, .01, .01, .3, 0, 2.15, -.54, MAT.brass); return g; }
+function mkShower(){ const g = new THREE.Group(); box(g, .9, .025, 1.1, 0, 0, 0, clr(0xd8cbb3, .55)); box(g, .02, 2.0, 1.1, .46, 0, 0, MAT.glass).material = MAT.glass; box(g, .025, .02, 1.1, .46, 2.0, 0, MAT.brass); cyl(g, .12, .12, .012, 0, 2.15, -.5, MAT.brass); cyl(g, .01, .01, .3, 0, 2.15, -.54, MAT.brass); return g; }
 function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y => cyl(g, .01, .01, w, 0, y, .05, MAT.brass, 8).rotation.z = Math.PI / 2); [-1, 1].forEach(s => box(g, .02, 1.2, .02, s * (w / 2), .35, .02, MAT.brass)); [[.2, .85], [-.1, 1.2]].forEach(([x, y]) => soft(g, .32, .42, .04, .02, x, y - .4, .08, S.towel)); return g; }
 {
   let q;
@@ -1259,17 +1277,19 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
       c = rp(1.15, .405); { const t = mkFreeTub(1.7, .8); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.7, .8, N); }                                  // freestanding bath along the north wall, moved towards the door
     }
     c = rp(2.72, DD - .365); addF(mkWC(1.0), c[0], c[1], [-N[0], -N[1]], [.4, .6]).userData.snap = 1;                                                                  // WC opposite the vanity against the south wall
-    c = VARIANT === 'C' ? rp(1.68, 1.05) : VB ? rp(1.5, 1.0) : rp(1.4, 1.15 + (DD - 1.612) / 2); { const mt = new THREE.Group(); soft(mt, .9, .03, .55, .015, 0, 0, 0, S.towel); place(mt, c[0], c[1], N); furnG.add(mt); }
+    if (VARIANT === 'C'){ const pc = rp(.28, .3), pl = mkPlant(.8, 7); pl.position.set(pc[0], 0, pc[1]); furnG.add(pl); addObb(pc[0], pc[1], .34, .34, N); }      // palm in the free corner behind the bath
+    c = VARIANT === 'C' ? rp(1.68, 1.05) : VB ? rp(1.5, 1.0) : rp(1.4, 1.15 + (DD - 1.612) / 2); { const mt = new THREE.Group(); soft(mt, .9, .03, .55, .015, 0, 0, 0, JUTE); place(mt, c[0], c[1], N); furnG.add(mt); }
   }
   { const by = VB ? 13.5 : 0, px = [466.3, 372.5 - by], w = wallPlace('bad', [466.3 - .1 * 22.677, px[1]], .42), v = mkVanity(1.1, 1, .42, .27); place(v, w.x, w.z, w.n); v.userData.snap = 1; furnG.add(v); addObb(w.x, w.z, 1.1, .42, w.n);     // single larger basin, in the corner next to the door
-    const wm = wallPlace('bad', [466.3 - .1 * 22.677, px[1]], .03), m = mkMirror(.9, .9); place(m, wm.x, wm.z, wm.n, 1.25); m.userData.snap = 1; furnG.add(m);
-    const ws = wallPlace('bad', [466.3 - .76 * 22.677, 372.5 - by], .04), sc = new THREE.Group(); box(sc, .04, .22, .04, 0, 0, 0, MAT.brass); const e = new THREE.Mesh(new THREE.CylinderGeometry(.035, .035, .16, 12), MAT.emit); e.position.y = .11; sc.add(e); sc.position.set(ws.x, 1.55, ws.z); sc.userData.snap = 1; furnG.add(sc); }
+    const wm = wallPlace('bad', [466.3 - .1 * 22.677, px[1]], .03), m = mkMirrorArch(.9, 1.0); place(m, wm.x, wm.z, wm.n, 1.2); m.userData.snap = 1; furnG.add(m);
+    const ws = wallPlace('bad', [466.3 - .76 * 22.677, 372.5 - by], .04), pd = new THREE.Group();      // glass globe pendant beside the mirror
+    cyl(pd, .004, .004, CEIL - 1.85, 0, 1.85, 0, MAT.black, 4); cyl(pd, .022, .022, .05, 0, 1.94, 0, MAT.black, 10); sph(pd, .1, 0, 1.85, 0, MAT.glass, 1, 1, 1); sph(pd, .045, 0, 1.85, 0, MAT.emit, 1, 1, 1); pd.position.set(ws.x + ws.n[0] * .28, 0, ws.z + ws.n[1] * .28); pd.userData.snap = 0; furnG.add(pd); }
   // DU/WC
   q = fp(307.2, 325.9); addF(mkShower(), q[0], q[1], [1, 0], [.9, 1.1]);
   q = fp(330.0, 312.6); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
   q = fp(354.4, 309.2); addF(mkVanity(.8, 1), q[0], q[1], [0, 1], [.8, .5]).userData.snap = 1;
-  q = fp(354.4, 308.0); { const m = mkMirror(.8, .9); place(m, q[0], q[1] + .02, [0, 1], 1.25); m.userData.snap = 1; furnG.add(m); }
-  q = fp(354, 331); { const mt = new THREE.Group(); soft(mt, .8, .03, .5, .015, 0, 0, 0, S.towel); mt.position.set(q[0], 0, q[1]); furnG.add(mt); }
+  q = fp(354.4, 308.0); { const m = mkMirrorArch(.8, .95); place(m, q[0], q[1] + .02, [0, 1], 1.2); m.userData.snap = 1; furnG.add(m); }
+  q = fp(354, 331); { const mt = new THREE.Group(); soft(mt, .8, .03, .5, .015, 0, 0, 0, JUTE); mt.position.set(q[0], 0, q[1]); furnG.add(mt); }
   // the small WC next to the Ankleide is used as a second Reduit (storage): shelving along its walls
   if (roomById.wc){ const room = roomById.wc, rr = rnd32(41), cardboard = clr(0xb89a72, .9), blue = clr(0x3b78b5, .4), green = clr(0x59a55b, .4), grey = clr(0x8c9094, .5);
     const binMats = [S.sofa, S.sofa2, S.pillowA, S.towel, cardboard, MAT.black];
