@@ -1065,9 +1065,9 @@ function mkSideboardLux(w, d){
   vase(g, -.55, .775, .0, .3, .08); flowers(g, -.55, 1.05, 0, .9, .4); bowl(g, .1, .775, 0, .17, MAT.ceramicD, false); bookStack(g, .75, .775, 0, 4, -.1); vase(g, 1.15, .775, .03, .2, .06, MAT.brass); return g;
 }
 function mkDiningChair(){
-  const g = new THREE.Group(); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => cyl(g, .022, .014, .46, sx * .19, 0, sz * .19, MAT.oakDark, 10));
-  soft(g, .5, .07, .48, .035, 0, .45, 0, S.chair);
-  const back = new THREE.Mesh(new THREE.CylinderGeometry(.27, .27, .34, 28, 1, true, Math.PI - .95, 1.9), S.chair); back.position.set(0, .7, .0); back.castShadow = back.receiveShadow = true; g.add(back); return g;
+  const g = new THREE.Group(); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => cyl(g, .022, .014, .46, sx * .19, 0, sz * .19, MAT.black, 10));
+  soft(g, .5, .07, .48, .035, 0, .45, 0, CHAIRV);
+  const back = new THREE.Mesh(new THREE.CylinderGeometry(.27, .27, .34, 28, 1, true, Math.PI - .95, 1.9), CHAIRV); back.position.set(0, .7, .0); back.castShadow = back.receiveShadow = true; g.add(back); return g;
 }
 function mkStool(){
   const g = new THREE.Group(); [0, 1, 2, 3].forEach(i => { const a = i / 4 * 6.283 + .78; link(g, [Math.cos(a) * .11, .6, Math.sin(a) * .11], [Math.cos(a) * .19, 0, Math.sin(a) * .19], .011, MAT.brass, 8); });
@@ -1107,6 +1107,8 @@ function mkCurtain(b, sides, topY, ceilCheck, limL = .5){        // pleated floo
 const JUTE = (() => { const wt = cached('wicker', () => buildMaps(256, (u, v, o, px, py) => { const a = ((px >> 2) + (py >> 2)) & 1, h = a ? 0.5 + 0.5 * Math.sin(px * Math.PI / 2) : 0.5 + 0.5 * Math.sin(py * Math.PI / 2); o.r = o.g = o.b = 255 * Math.min(1, 0.74 + 0.26 * h); o.h = h; }, 2.6, 1)), t = wt.map.clone(), n = wt.normal.clone(); [t, n].forEach(x => { x.repeat.set(2.6, 1.6); x.needsUpdate = true; }); return std({ color:0xcdb48a, map:t, normalMap:n, roughness:1 }); })();      // jute bath mats
 const WICKER = (() => { const wt = cached('wicker', () => buildMaps(256, (u, v, o, px, py) => { const a = ((px >> 2) + (py >> 2)) & 1, h = a ? 0.5 + 0.5 * Math.sin(px * Math.PI / 2) : 0.5 + 0.5 * Math.sin(py * Math.PI / 2); o.r = o.g = o.b = 255 * Math.min(1, 0.74 + 0.26 * h); o.h = h; }, 2.6, 1)); return std({ color:0xcaa66d, map:wt.map, normalMap:wt.normal, roughness:.95 }); })();      // rattan seats
 const KSTONE = (() => { const lm = cached('limestoneSlab', () => genLimestone(false)); const m = phys({ color:0xf3ead9, map:lm.map, normalMap:lm.normal, roughness:.42, clearcoat:.12, clearcoatRoughness:.3 }); envMats.push(m); return m; })();      // sandy limestone worktop and splash back
+const DARKWOOD = (() => { const wg = cached('woodGrain', genWoodGrain); return std({ color:0x5b3c2a, map:wg.map, normalMap:wg.normal, roughness:.5 }); })();      // dark brown dining table
+const CHAIRV = (() => { const m = phys({ color:0xffffff, roughness:1, sheen:.5, sheenRoughness:.8, sheenColor:new THREE.Color(0x222222), side:THREE.DoubleSide }); fab(m, 'velvet', 0x131415); return m; })();      // black velvet dining chairs
 /* ---------- kitchen along the west wall of the living room, with stone worktop, full-height stone splash back and appliances ---------- */
 function mkKitchenRun(){
   const A = fp(621.2, 205.3), B = fp(598.0, 296.5), u = unit(B[0] - A[0], B[1] - A[1]), nw = [-.9701, -.2427], depth = .62, L = Math.hypot(B[0] - A[0], B[1] - A[1]), rotY = -Math.atan2(u[1], u[0]);
@@ -1158,13 +1160,14 @@ mkKitchenRun();
   const c = fp(702.2, 297.4), ax = unit(-.2467, .9691), pe = [-ax[1], ax[0]], rotAx = -Math.atan2(ax[1], ax[0]);
   const rug = mkRugLux(S.rugD, 3.1, 2.1); rug.position.set(c[0], 0, c[1]); rug.rotation.y = rotAx; furnG.add(rug);
   const t = new THREE.Group(); t.position.set(c[0], 0, c[1]); t.rotation.y = rotAx; furnG.add(t); addObb(c[0], c[1], .9, 2.2, ax);
-  const TL = 2.2, TW = .9; soft(t, TL, .05, TW, .02, 0, .72, 0, MAT.oak); [-1, 1].forEach(s => soft(t, .09, .72, TW * .7, .03, s * (TL / 2 - .35), 0, 0, MAT.oakDark));
+  const TL = 2.2, TW = .9; soft(t, TL, .05, TW, .02, 0, .72, 0, DARKWOOD); [-1, 1].forEach(sx => [-1, 1].forEach(sz => box(t, .08, .72, .08, sx * (TL / 2 - .08), 0, sz * (TW / 2 - .08), DARKWOOD)));       // dark wood top on four corner legs
   soft(t, TL - .4, .012, .34, .005, 0, .772, 0, S.curtain);                                                    // linen table runner
   candlestick(t, -.35, .772, .0, .22); candlestick(t, .35, .772, .0, .22); vase(t, 0, .772, 0, .24, .07); flowers(t, 0, 1.0, 0, .8, .32);
   const east = [.9691, .2467];
   [[697.7, 280.0, 1], [693.0, 294.0, 1], [689.5, 308.0, 1], [713.3, 299.5, -1], [709.3, 314.5, -1], [718.0, 285.0, -1]].forEach(([x, y, s]) => {
-    const q = fp(x, y), ch = mkDiningChair(); place(ch, q[0], q[1], [east[0] * s, east[1] * s]); furnG.add(ch);
-    const dx = q[0] - c[0], dz = q[1] - c[1], tl = dx * ax[0] + dz * ax[1], sd = Math.sign(dx * pe[0] + dz * pe[1]) || 1, zz = sd * .26;      // place setting in front of every chair
+    const q0 = fp(x, y), dx0 = q0[0] - c[0], dz0 = q0[1] - c[1], tl = dx0 * ax[0] + dz0 * ax[1], sd = Math.sign(dx0 * pe[0] + dz0 * pe[1]) || 1, q = [c[0] + ax[0] * tl + pe[0] * sd * .82, c[1] + ax[1] * tl + pe[1] * sd * .82], ch = mkDiningChair();      // chairs pulled back so the seat clears the table edge
+    place(ch, q[0], q[1], [east[0] * s, east[1] * s]); furnG.add(ch);
+    const zz = sd * .26;      // place setting in front of every chair
     cyl(t, .17, .17, .008, tl, .772, zz, MAT.brass, 32); cyl(t, .13, .12, .014, tl, .78, zz, MAT.ceramic, 28);      // charger plate + plate
     box(t, .1, .014, .08, tl, .794, zz, S.sheet, .3);                                                               // folded napkin
     box(t, .018, .008, .19, tl - .2, .772, zz, MAT.chrome); box(t, .014, .008, .21, tl + .2, .772, zz, MAT.chrome);   // fork, knife
