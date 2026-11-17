@@ -1316,16 +1316,17 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     tableLamp(g, -.4, .82, 0, .85, MAT.ceramic); vase(g, .3, .82, 0, .26, .07); flowers(g, .3, 1.06, 0, .8, .34); bookStack(g, .0, .82, .03, 3, .1); addF(g, w.x, w.z, w.n, [1.2, .34]);
     const mr = mkRoundMirror(.45); place(mr, w.x - w.n[0] * .17, w.z - w.n[1] * .17, w.n, 1.25); furnG.add(mr); }
   { const w2 = wallPlace('korridor', [520, 277], .02), kinds = [3, 0, 1]; kinds.forEach((k, i) => { const t = (i - 1) * .95; hang(k, .6, .8, w2.x + w2.ux * t, w2.z + w2.uz * t, w2.n, 1.2); }); }
-  // coat unit on the south face of Zimmer 01's wall: oak back panel, hat shelf, rail, hooks, bench
-  { const len = 1.95, c0 = fp(436.43, 244.6), nS = [-.2515, .970], g = new THREE.Group();
-    box(g, len, 2.1, .02, 0, .1, .01, MAT.oak); box(g, len, .04, .34, 0, 1.92, .19, MAT.oak); link(g, [-len / 2 + .05, 1.78, .14], [len / 2 - .05, 1.78, .14], .012, MAT.brass, 8);
-    for (let i = 0; i < 6; i++) box(g, .025, .1, .06, -len / 2 + .2 + i * (len - .4) / 5, 1.5, .05, MAT.brass);
-    soft(g, len, .06, .36, .015, 0, .42, .19, MAT.oak); [-1, 1].forEach(s => box(g, .05, .42, .3, s * (len / 2 - .1), 0, .19, MAT.black)); soft(g, .5, .08, .3, .03, -.3, .48, .19, S.bench);
-    g.position.set(c0[0] + nS[0] * .02, 0, c0[1] + nS[1] * .02); g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); addObb(c0[0] + nS[0] * .2, c0[1] + nS[1] * .2, len, .4, nS); }
-  // coats and shoes at the coat unit
-  const gd = unit(.970, .2515), nS = [-.2515, .970], c0 = fp(436.43, 244.6), cm = [S.sofa2, S.throwA, S.pillowB];
-  [-.6, -.15, .35].forEach((t, i) => { const g = new THREE.Group(); soft(g, .3, 1.0, .1, .04, 0, 0, 0, cm[i]); cyl(g, .01, .01, .12, 0, .98, 0, MAT.black, 6); g.position.set(c0[0] + gd[0] * t + nS[0] * .17, 0, c0[1] + gd[1] * t + nS[1] * .17); g.position.y = .72; g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); });
-  [-.55, -.3].forEach(t => { const g = new THREE.Group(); soft(g, .1, .08, .28, .035, -.07, 0, 0, S.leather); soft(g, .1, .08, .28, .035, .07, 0, 0, S.leather); g.position.set(c0[0] + gd[0] * t + nS[0] * .2, 0, c0[1] + gd[1] * t + nS[1] * .2); g.position.y = .0; g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); });
+  // wardrobe on the south face of Zimmer 01's wall: closed oak cabinets (left, three doors), open coat niche on the right with hat shelf, rail, jackets and shoes
+  { const len = 1.95, c0 = fp(436.43, 244.6), nS = [-.2515, .970], gd = unit(.970, .2515), g = new THREE.Group(), H = 2.4, cw = 1.225, x0 = -len / 2 + cw, nx = len / 2 - x0, xc = (x0 + len / 2) / 2;
+    box(g, cw, H - .08, .5, -len / 2 + cw / 2, .08, .25, MAT.oak); box(g, cw - .04, .08, .44, -len / 2 + cw / 2, 0, .23, MAT.black);                                         // closed cabinets on a dark plinth
+    [1, 2].forEach(i => box(g, .006, H - .12, .006, -len / 2 + i * cw / 3, .1, .503, MAT.black));                                                                         // door reveals
+    [0, 1, 2].forEach(i => box(g, .014, .5, .016, -len / 2 + (i + 1) * cw / 3 - .05, 1.0, .515, MAT.black));                                                              // door handles
+    box(g, nx, H, .02, xc, 0, .01, MAT.oak); box(g, .02, H, .5, len / 2 - .01, 0, .25, MAT.oak); box(g, nx, .04, .5, xc, H - .04, .25, MAT.oak); box(g, nx - .02, .04, .4, xc, 2.0, .22, MAT.oak);   // niche: back, side, top, hat shelf
+    link(g, [x0 + .06, 1.78, .25], [len / 2 - .06, 1.78, .25], .012, MAT.brass, 8);                                                                                       // coat rail
+    g.position.set(c0[0] + nS[0] * .02, 0, c0[1] + nS[1] * .02); g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); addObb(c0[0] + nS[0] * .27, c0[1] + nS[1] * .27, len, .5, nS);
+    const cm = [S.sofa2, S.throwA, S.pillowB];
+    [xc - .2, xc, xc + .2].forEach((t, i) => { const j = new THREE.Group(); soft(j, .26, 1.0, .1, .04, 0, 0, 0, cm[i]); cyl(j, .01, .01, .12, 0, .98, 0, MAT.black, 6); j.position.set(c0[0] + gd[0] * t + nS[0] * .27, .78, c0[1] + gd[1] * t + nS[1] * .27); j.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(j); });
+    [xc - .15, xc + .15].forEach(t => { const j = new THREE.Group(); soft(j, .1, .08, .28, .035, -.07, 0, 0, S.leather); soft(j, .1, .08, .28, .035, .07, 0, 0, S.leather); j.position.set(c0[0] + gd[0] * t + nS[0] * .22, 0, c0[1] + gd[1] * t + nS[1] * .22); j.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(j); }); }
 }
 // terrace: stone dining table with black feet and black metal chairs, lounge parallel to it, both under the cover (no rug, plants, candles or glasses)
 {
