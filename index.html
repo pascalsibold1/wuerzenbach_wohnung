@@ -1471,10 +1471,10 @@ function buildLaundryNook(){
     machine(0); machine(H1); box(g, .6, .012, .585, 0, H1 - .006, 0, MAT.black); }
   // tall cabinet to the right of the machines (north part of the west wall), same height, one door from floor to top
   { const { g, q } = mkG(347 + .225 * PPM + .01, 280.5); addObb(q[0], q[1], .58, .45, N);
-    box(g, .58, H, .45, 0, 0, 0, MAT.lacquer); box(g, .5, .07, .4, 0, 0, .0, MAT.black);                                   // carcass and dark plinth
-    box(g, .576, H - .09, .016, 0, .09, .225 + .006, MAT.lacquer);                                                              // door, full height (reveal at the plinth)
+    box(g, .58, H, .45, 0, 0, 0, ANTH); box(g, .5, .07, .4, 0, 0, .0, MAT.black);                                   // carcass and dark plinth
+    box(g, .576, H - .09, .016, 0, .09, .225 + .006, ANTH);                                                              // door, full height (reveal at the plinth)
     box(g, .004, H - .09, .004, -.288, .09, .225 + .012, MAT.black); box(g, .004, H - .09, .004, .288, .09, .225 + .012, MAT.black);       // reveals at the sides
-    box(g, .014, .55, .014, .235, .75, .225 + .055, MAT.black); box(g, .02, .02, .05, .235, 1.0, .225 + .03, MAT.black); box(g, .02, .02, .05, .235, 1.28, .225 + .03, MAT.black); }
+    box(g, .014, .55, .014, -.235, .75, .225 + .055, MAT.chrome); box(g, .02, .02, .05, -.235, 1.0, .225 + .03, MAT.chrome); box(g, .02, .02, .05, -.235, 1.28, .225 + .03, MAT.chrome); }
   // jute rug in front of the machines and a wicker laundry basket
   { const { g } = mkG(366.5, 288.5), jt = wt.map.clone(), jn = wt.normal.clone(); [jt, jn].forEach(t => { t.repeat.set(2.4, 1); t.needsUpdate = true; }); const jm = std({ color:0xd6c096, map:jt, normalMap:jn, roughness:1 });
     box(g, 1.0, .016, .5, 0, 0, 0, jm).castShadow = false; [-1, 1].forEach(s => box(g, .05, .012, .5, s * .525, 0, 0, std({ color:0xe6d6b4, roughness:1 })).castShadow = false); }
