@@ -1280,7 +1280,6 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
       c = rp(1.15, .405); { const t = mkFreeTub(1.7, .8); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.7, .8, N); }                                  // freestanding bath along the north wall, moved towards the door
     }
     c = rp(2.72, DD - .365); addF(mkWC(1.0), c[0], c[1], [-N[0], -N[1]], [.4, .6]).userData.snap = 1;                                                                  // WC opposite the vanity against the south wall
-    c = VARIANT === 'C' ? rp(1.68, 1.05) : VB ? rp(1.5, 1.0) : rp(1.4, 1.15 + (DD - 1.612) / 2); { const mt = new THREE.Group(); soft(mt, .9, .03, .55, .015, 0, 0, 0, JUTE); place(mt, c[0], c[1], N); furnG.add(mt); }
   }
   { const by = VB ? 13.5 : 0, px = [466.3, 372.5 - by], w = wallPlace('bad', [466.3 - .1 * 22.677, px[1]], .42), v = mkVanity(1.1, 1, .42, .27); place(v, w.x, w.z, w.n); v.userData.snap = 1; furnG.add(v); addObb(w.x, w.z, 1.1, .42, w.n);     // single larger basin, in the corner next to the door
     const wm = wallPlace('bad', [466.3 - .1 * 22.677, px[1]], .03), m = mkMirrorArch(.9, 1.0); place(m, wm.x, wm.z, wm.n, 1.2); m.userData.snap = 1; furnG.add(m);
