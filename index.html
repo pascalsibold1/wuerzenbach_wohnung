@@ -1314,7 +1314,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
   const w = wallPlace('korridor', [468.5, 313], .34);        // console on the entrance side of the free-standing column at plan (495, 308), with the full-length mirror to its right (west)
   { const g = new THREE.Group(); [-1, 1].forEach(s => [-1, 1].forEach(t => cyl(g, .014, .01, .78, s * .52, 0, t * .13, MAT.brass, 8))); soft(g, 1.2, .04, .32, .012, 0, .78, 0, S.counter); box(g, 1.1, .06, .28, 0, .7, 0, MAT.oak);
     tableLamp(g, -.4, .82, 0, .85, MAT.ceramic); vase(g, .3, .82, 0, .26, .07); flowers(g, .3, 1.06, 0, .8, .34); bookStack(g, .0, .82, .03, 3, .1); addF(g, w.x, w.z, w.n, [1.2, .34]);
-    const wm = wallPlace('korridor', [443, 312], .03), mr = mkMirror(.9, 2.2, std({ color:0xd2dadc, metalness:.2, roughness:.06, emissive:0x3d4749 })); place(mr, wm.x, wm.z, wm.n, .02); furnG.add(mr); }
+    const wm = wallPlace('korridor', [443, 312], .03), mr = mkMirror(.9, 2.2, std({ color:0xd2dadc, metalness:.2, roughness:.06, emissive:0x3d4749 })); place(mr, wm.x, wm.z, wm.n, .22); furnG.add(mr); }
   { const w2 = wallPlace('korridor', [520, 277], .02), kinds = [0]; kinds.forEach((k, i) => { const t = 0; hang(k, .6, .8, w2.x + w2.ux * t, w2.z + w2.uz * t, w2.n, 1.2); }); }
   // wardrobe on the south face of Zimmer 01's wall: closed oak cabinets (left, three doors), open coat niche on the right with hat shelf, rail, jackets and shoes
   { const len = 1.95, c0 = fp(436.43, 244.6), nS = [-.2515, .970], gd = unit(.970, .2515), g = new THREE.Group(), H = 2.4, cw = 1.225, x0 = -len / 2 + cw, nx = len / 2 - x0, xc = (x0 + len / 2) / 2;
