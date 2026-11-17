@@ -586,6 +586,7 @@ function nearestRun(room, pt){
 [['z01', [517, 203]], ['z02', [521, 272]], ['z03', [566, 370]]].forEach(([id, pt]) => { const run = nearestRun(roomById[id], pt); if (run) wallG.add(strip(run.a, run.b, run.n, 0.09, roomById[id].ceil, accentMat[id], 1)); });
 
 // door headers + door leaves
+{ const d3 = DATA.doors.find(d => d.id === 'D3'); if (d3) d3.open = [2 * d3.hinge[0] - d3.open[0], 2 * d3.hinge[1] - d3.open[1]]; }      // door to Reduit 1 swings out into the corridor
 const doors = [];
 for (const d of DATA.doors){
   wallG.add(prism(d.quad, null, 2.2, H_WALL, MAT.plaster)); roofG.add(prism(d.quad, null, H_WALL, H_SLAB, [MAT.roof, MAT.plaster]));
@@ -1453,71 +1454,33 @@ function mergeStatic(root){
 
 /* ---------- Reduit 1: styled laundry nook (warm oak shelves with LED strips, cream subway tile, wicker, rolled towels, plants) ---------- */
 function buildLaundryNook(){
+  // Reduit 1: washer with dryer stacked in the niche (south part), tall single-door cabinet of the same height to its right (north part), door swings out into the corridor
   const wt = cached('wicker', () => buildMaps(256, (u, v, o, px, py) => { const a = ((px >> 2) + (py >> 2)) & 1, h = a ? 0.5 + 0.5 * Math.sin(px * Math.PI / 2) : 0.5 + 0.5 * Math.sin(py * Math.PI / 2); o.r = o.g = o.b = 255 * Math.min(1, 0.74 + 0.26 * h); o.h = h; }, 2.6, 1));
   const WICK = std({ color:0xcaa66d, map:wt.map, normalMap:wt.normal, roughness:.95 }), WICKD = std({ color:0xb89558, map:wt.map, normalMap:wt.normal, roughness:.95 });
-  const sub = cached('subway', genSubway), glass = clr(0x101315, .06, .5), ctrl = clr(0x1b1f22, .35, .3), towelDark = clr(0xe3dac8, .9), oliveLeaf = clr(0x6f8a5a, .7), potLeaf = [clr(0x3f6b3a, .7), clr(0x5a8a45, .7), clr(0x4d7a40, .7)];
-  const liquids = [clr(0xeadfc4, .2), clr(0xe2d2b0, .2), clr(0xd7dccb, .2), clr(0xe9d4c2, .2)];
-  const room = roomById.reduit, runLen = u => Math.hypot(u.b[0] - u.a[0], u.b[1] - u.a[1]);
-  const run = { a:fp(347, 302), b:fp(347, 273.7), n:[1, 0] }, len = runLen(run), n = run.n, u0 = [(run.b[0] - run.a[0]) / len, (run.b[1] - run.a[1]) / len];
-  const dr = DATA.doors.find(d => d.id === 'D3'), dm = [(dr.hinge[0] + dr.closed[0]) / 2, (dr.hinge[1] + dr.closed[1]) / 2];
-  const far = Math.hypot(run.a[0] - dm[0], run.a[1] - dm[1]) > Math.hypot(run.b[0] - dm[0], run.b[1] - dm[1]);          // start at the end of the wall that is farthest from the door
-  const start = far ? run.a : run.b, dir = far ? u0 : [-u0[0], -u0[1]], lx = [n[1], -n[0]], sg = dir[0] * lx[0] + dir[1] * lx[1] > 0 ? 1 : -1, X = t => sg * (t - len / 2), BACK = -.312, SZ = BACK + .13;
-  const g = new THREE.Group(); g.position.set(start[0] + dir[0] * len / 2 + n[0] * .312, 0, start[1] + dir[1] * len / 2 + n[1] * .312); g.rotation.y = Math.atan2(n[0], n[1]); furnG.add(g); g.updateMatrixWorld(true);
-  addObb(g.position.x, g.position.z, len, .64, n);
-
-  // cream subway-tile wall behind the worktop and shelves
-  { const th = 2.5 - .89, tm = std({ color:0xeee3cf, roughness:.3 }); tintMats.push({ m:tm, key:'subway' });
-    const tt = sub.map.clone(), nt = sub.normal.clone(); [tt, nt].forEach(t => { t.repeat.set(len / .4, th / .4); t.needsUpdate = true; }); tm.map = tt; tm.normalMap = nt;
-    const tp = new THREE.Mesh(new THREE.PlaneGeometry(len, th), tm); tp.position.set(X(len / 2), .89 + th / 2, BACK + .003); tp.receiveShadow = true; g.add(tp); }
-
-  // washer and dryer side by side (black glass doors, chrome rings, digital display and dial)
-  const ANTH = std({ color:0x5a5f64, roughness:.42, metalness:.12 });
-  const machine = (t) => {
-    const x = X(t), zf = .292, R = .225; box(g, .595, .85, .58, x, 0, 0, ANTH);
-    box(g, .5, .07, .006, x + sg * .02, .745, zf, ctrl); box(g, .12, .034, .006, x + sg * .17, .748, zf + .004, glass); sph(g, .026, x - sg * .1, .75, zf + .012, MAT.chrome, 1, 1, .5); box(g, .08, .022, .006, x - sg * .24, .745, zf + .003, MAT.lacquer);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(R, .014, 12, 48), MAT.chrome); ring.position.set(x, .38, zf + .006); ring.castShadow = true; g.add(ring);
-    const disc = new THREE.Mesh(new THREE.CircleGeometry(R - .005, 48), glass); disc.position.set(x, .38, zf + .004); g.add(disc);
-    const drum = new THREE.Mesh(new THREE.CircleGeometry(R - .07, 40), clr(0x6e7378, .25, .8)); drum.position.set(x, .38, zf + .007); g.add(drum);
-    const hole = new THREE.Mesh(new THREE.CircleGeometry(R - .11, 32), clr(0x0b0d0e, .4, .3)); hole.position.set(x, .38, zf + .0085); g.add(hole); box(g, .18, .008, .006, x, .06, zf + .001, MAT.lacquer);
-  };
-  machine(.32); machine(.93);                                                        // anthracite washer and dryer, side by side against the back wall
-  const lidBasket = (x, y, z, w, h, d) => { box(g, w, h, d, x, y, z, WICK); box(g, w + .012, .02, d + .012, x, y + h, z, WICKD); box(g, .09, .016, .004, x, y + h - .045, z + d / 2 + .002, MAT.black); };
-  // cream stone worktop
-  soft(g, len + .02, .04, .66, .006, X(len / 2), .85, .01, MAT.quartz);
-
-  // two oak floating shelves with warm LED strips underneath and a soft light wash on the tiles
-  const SY = [1.36, 1.82], top = y => y + .04;
-  SY.forEach(y => { soft(g, len - .02, .04, .27, .008, X(len / 2), y, BACK + .135, MAT.oak);
-    box(g, len - .14, .008, .016, X(len / 2), y - .008, BACK + .21, ledMat);
-    const gp = new THREE.Mesh(new THREE.PlaneGeometry(len - .06, .44), glowMat); gp.position.set(X(len / 2), y - .23, BACK + .008); gp.castShadow = false; gp.receiveShadow = false; g.add(gp); });
-
-  const roll = (x, yBase, z, l, r) => { const m = cyl(g, r, r, l, x, yBase + r - l / 2, z, MAT.white, 22); m.rotation.x = Math.PI / 2; m.position.y = yBase + r;
-    const e = cyl(g, r * .5, r * .5, l + .006, x, yBase + r - (l + .006) / 2, z, towelDark, 14); e.rotation.x = Math.PI / 2; e.position.y = yBase + r; };
-  const potted = (x, y, z, r, h, kind) => { lathe(g, [[0, 0], [r * .62, 0], [r * .96, h * .1], [r, h * .5], [r * .92, h]], x, y, z, MAT.pot, 22); cyl(g, r * .88, r * .88, .012, x, y + h - .006, z, MAT.soil, 16);
-    const rr = rnd32(Math.floor(Math.abs(x) * 331 + kind * 17) + 3); for (let i = 0; i < 12; i++){ const a = rr() * 6.283, lh = (.08 + rr() * .2) * (kind === 0 ? 1.4 : 1); const l = sph(g, .028, x + Math.cos(a) * r * (.3 + rr() * .5), y + h + lh * .5, z + Math.sin(a) * r * (.3 + rr() * .5), potLeaf[i % 3], .45, kind === 0 ? 2.4 : 1.7, .12); l.rotation.set((rr() - .5) * .8, a, (rr() - .5) * .9); } };
-  const basket = (x, y, z, w, h, d) => { box(g, w, h, d, x, y, z, WICK); box(g, w + .012, .014, d + .012, x, y + h - .007, z, WICKD);
-    [-1, 1].forEach(s => { const hd = new THREE.Mesh(new THREE.TorusGeometry(.05, .007, 6, 16, Math.PI), WICKD); hd.rotation.y = Math.PI / 2; hd.position.set(x + s * (w / 2 + .002), y + h - .02, z); g.add(hd); }); };
-  const bottle = (x, y, z, liquid) => { const body = new THREE.Mesh(new THREE.CylinderGeometry(.036, .036, .17, 20, 1, true), glassStem); body.position.set(x, y + .085, z); g.add(body); cyl(g, .033, .033, .13, x, y + .004, z, liquid, 18);
-    cyl(g, .014, .014, .03, x, y + .17, z, MAT.black, 10); cyl(g, .008, .008, .035, x, y + .2, z, MAT.black, 8); box(g, .05, .009, .009, x + sg * .02, y + .232, z, MAT.black); box(g, .05, .075, .003, x, y + .08, z + .037, MAT.white); };
-  // upper shelf: potted plant, pyramid of rolled towels, big wicker basket
-  potted(X(.16), top(SY[1]), SZ, .085, .15, 0);
-  [[.4, 0], [.52, 0], [.64, 0]].forEach(([t]) => roll(X(t), top(SY[1]), SZ, .22, .055)); [[.46], [.58]].forEach(([t]) => roll(X(t), top(SY[1]) + .098, SZ, .22, .055)); roll(X(.52), top(SY[1]) + .196, SZ, .22, .055);
-  basket(X(1.0), top(SY[1]), SZ, .42, .24, .22);
-  // lower shelf: fern, four labelled dispensers, small lidded basket
-  potted(X(.14), top(SY[0]), SZ, .075, .12, 1);
-  [.36, .5, .64, .78].forEach((t, i) => bottle(X(t), top(SY[0]), SZ, liquids[i])); lidBasket(X(1.05), top(SY[0]), SZ, .26, .13, .19);
-  // worktop: round wicker tray with olive branch, candle and reed diffuser; rectangular tray with rolled towels and a plant
-  { const x = X(.3), y = .89; cyl(g, .17, .17, .028, x, y, 0, WICK, 32); const rimT = new THREE.Mesh(new THREE.TorusGeometry(.17, .008, 6, 32), WICKD); rimT.rotation.x = Math.PI / 2; rimT.position.set(x, y + .028, 0); g.add(rimT);
-    const vs = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, .16, 18, 1, true), glassStem); vs.position.set(x - sg * .07, y + .028 + .08, -.02); g.add(vs); cyl(g, .037, .037, .09, x - sg * .07, y + .03, -.02, clr(0xd8e6ea, .05), 16);
-    const rr = rnd32(91); for (let i = 0; i < 5; i++){ const a = rr() * 6.283, h = .26 + rr() * .14, tx = Math.sin(a) * .07, tz = Math.cos(a) * .07, bx = x - sg * .07, bz = -.02; link(g, [bx, y + .1, bz], [bx + tx, y + .1 + h, bz + tz], .003, clr(0x5c4a36, .8), 5); for (let k = 1; k <= 4; k++){ const lf = sph(g, .018, bx + tx * k / 4 + (rr() - .5) * .03, y + .1 + h * k / 4, bz + tz * k / 4, oliveLeaf, 1, 1.4, .5); lf.rotation.set(rr(), a, rr()); } }
-    const ch = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .09, 20, 1, true), glassStem); ch.position.set(x + sg * .02, y + .028 + .045, .05); g.add(ch); cyl(g, .035, .035, .12, x + sg * .02, y + .03, .05, waxMat, 16); sph(g, .008, x + sg * .02, y + .165, .05, flameMat, .7, 1.4, .7);
-    vase(g, x + sg * .12, y + .028, -.03, .1, .038, MAT.pot); for (let i = 0; i < 7; i++){ const a = (i - 3) * .09; link(g, [x + sg * .12, y + .125, -.03], [x + sg * (.12 + Math.sin(a) * .2), y + .33 - Math.abs(a) * .1, -.03 + (i % 2 ? .04 : -.04)], .0025, clr(0xc2a272, .8), 4); } }
-  { const x = X(.98), y = .89;   // (tray .73–1.23) box(g, .5, .028, .26, x, y, 0, WICK); [[-1, 0], [1, 0]].forEach(([s]) => box(g, .014, .03, .26, x + s * .243, y + .028, 0, WICKD)); [[-1], [1]].forEach(([s]) => box(g, .5, .03, .014, x, y + .028, s * .123, WICKD));
-    roll(X(.86), y + .028, .03, .22, .06); roll(X(1.0), y + .028, .03, .22, .06); roll(X(.93), y + .028 + .105, .03, .22, .06); potted(X(1.15), y, -.01, .075, .14, 1); }
-  // jute rug with fringe in front of the machines
-  { const jt = wt.map.clone(), jn = wt.normal.clone(); [jt, jn].forEach(t => { t.repeat.set(2.6, 1); t.needsUpdate = true; }); const jm = std({ color:0xd6c096, map:jt, normalMap:jn, roughness:1 });
-    box(g, 1.05, .016, .5, X(len / 2), 0, .64, jm).castShadow = false; [-1, 1].forEach(s => box(g, .05, .012, .5, X(len / 2) + sg * s * .55, 0, .64, std({ color:0xe6d6b4, roughness:1 })).castShadow = false); }
-  // big plant in the corner next to the door (south end), botanical print on the side wall
+  const glass = clr(0x101315, .06, .5), ctrl = clr(0x1b1f22, .35, .3), ANTH = std({ color:0x5a5f64, roughness:.42, metalness:.12 });
+  const mkG = (px, py) => { const q = fp(px, py), g = new THREE.Group(); g.position.set(q[0], 0, q[1]); g.rotation.y = Math.PI / 2; furnG.add(g); g.updateMatrixWorld(true); return { g, q }; };     // local +z = into the room (east), local +x = north
+  const H1 = .85, H = 2 * H1, N = [1, 0];
+  // stacked washer (below) and dryer (above) in the niche, back against the niche wall (plan x 339.1)
+  { const { g, q } = mkG(339.1 + .294 * PPM, 294.65); addObb(q[0], q[1], .6, .58, N);
+    const machine = y0 => { const zf = .292, R = .225; box(g, .595, H1, .58, 0, y0, 0, ANTH);
+      box(g, .5, .07, .006, .02, y0 + .745, zf, ctrl); box(g, .12, .034, .006, .17, y0 + .748, zf + .004, glass); sph(g, .026, -.1, y0 + .75, zf + .012, MAT.chrome, 1, 1, .5); box(g, .08, .022, .006, -.24, y0 + .745, zf + .003, MAT.lacquer);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(R, .014, 12, 48), MAT.chrome); ring.position.set(0, y0 + .38, zf + .006); ring.castShadow = true; g.add(ring);
+      const disc = new THREE.Mesh(new THREE.CircleGeometry(R - .005, 48), glass); disc.position.set(0, y0 + .38, zf + .004); g.add(disc);
+      const drum = new THREE.Mesh(new THREE.CircleGeometry(R - .07, 40), clr(0x6e7378, .25, .8)); drum.position.set(0, y0 + .38, zf + .007); g.add(drum);
+      const hole = new THREE.Mesh(new THREE.CircleGeometry(R - .11, 32), clr(0x0b0d0e, .4, .3)); hole.position.set(0, y0 + .38, zf + .0085); g.add(hole); box(g, .18, .008, .006, 0, y0 + .06, zf + .001, MAT.lacquer); };
+    machine(0); machine(H1); box(g, .6, .012, .585, 0, H1 - .006, 0, MAT.black); }
+  // tall cabinet to the right of the machines (north part of the west wall), same height, one door from floor to top
+  { const { g, q } = mkG(347 + .225 * PPM + .01, 280.5); addObb(q[0], q[1], .58, .45, N);
+    box(g, .58, H, .45, 0, 0, 0, MAT.lacquer); box(g, .5, .07, .4, 0, 0, .0, MAT.black);                                   // carcass and dark plinth
+    box(g, .576, H - .09, .016, 0, .09, .225 + .006, MAT.lacquer);                                                              // door, full height (reveal at the plinth)
+    box(g, .004, H - .09, .004, -.288, .09, .225 + .012, MAT.black); box(g, .004, H - .09, .004, .288, .09, .225 + .012, MAT.black);       // reveals at the sides
+    box(g, .014, .55, .014, .235, .75, .225 + .055, MAT.black); box(g, .02, .02, .05, .235, 1.0, .225 + .03, MAT.black); box(g, .02, .02, .05, .235, 1.28, .225 + .03, MAT.black); }
+  // jute rug in front of the machines and a wicker laundry basket
+  { const { g } = mkG(366.5, 288.5), jt = wt.map.clone(), jn = wt.normal.clone(); [jt, jn].forEach(t => { t.repeat.set(2.4, 1); t.needsUpdate = true; }); const jm = std({ color:0xd6c096, map:jt, normalMap:jn, roughness:1 });
+    box(g, 1.0, .016, .5, 0, 0, 0, jm).castShadow = false; [-1, 1].forEach(s => box(g, .05, .012, .5, s * .525, 0, 0, std({ color:0xe6d6b4, roughness:1 })).castShadow = false); }
+  { const { g } = mkG(368, 298.3); box(g, .42, .36, .3, 0, 0, 0, WICK); box(g, .432, .016, .312, 0, .36, 0, WICKD);
+    [-1, 1].forEach(s => { const hd = new THREE.Mesh(new THREE.TorusGeometry(.05, .007, 6, 16, Math.PI), WICKD); hd.position.set(s * .212, .3, 0); hd.rotation.y = Math.PI / 2; g.add(hd); }); }
+  // botanical print on the south wall
   { const w = wallPlace('reduit', [358, 302], .02); hang(6, .26, .36, w.x, w.z, w.n, 1.42); }
 }
 
