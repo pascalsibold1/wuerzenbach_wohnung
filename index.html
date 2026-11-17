@@ -978,7 +978,7 @@ function mkRoundMirror(r){ const g = new THREE.Group(), f = new THREE.Mesh(new T
 function mkMirrorArch(w, h){ const g = new THREE.Group(), shp = (ww, hh, y0) => { const s = new THREE.Shape(), q = ww / 2; s.moveTo(-q, y0); s.lineTo(q, y0); s.lineTo(q, y0 + hh - q); s.absarc(0, y0 + hh - q, q, 0, Math.PI, false); s.lineTo(-q, y0); return s; };       // arched mirror in an oak frame
   const fr = new THREE.Mesh(new THREE.ExtrudeGeometry(shp(w, h, 0), { depth:.03, bevelEnabled:false, curveSegments:28 }), MAT.oak); fr.position.z = -.0125; fr.castShadow = true; g.add(fr);
   const m = new THREE.Mesh(new THREE.ShapeGeometry(shp(w - .06, h - .06, .03), 28), MAT.mirror); m.position.z = .0185; g.add(m); return g; }
-function mkMirror(w, h){ const g = new THREE.Group(); box(g, w + .04, h + .04, .025, 0, 0, 0, MAT.brass); const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), MAT.mirror); m.position.set(0, h / 2 + .02, .014); g.add(m); return g; }
+function mkMirror(w, h, glass = MAT.mirror){ const g = new THREE.Group(); box(g, w + .04, h + .04, .025, 0, 0, 0, MAT.brass); const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), glass); m.position.set(0, h / 2 + .02, .014); g.add(m); return g; }
 function mkArt(w, h, kind){
   const g = new THREE.Group(); box(g, w, h, .035, 0, 0, 0, S.frame);
   const pm = new THREE.Mesh(new THREE.PlaneGeometry(w - .06, h - .06), MAT.white); pm.position.set(0, h / 2, .0185); g.add(pm);
@@ -1195,12 +1195,12 @@ function bedroom(bedPt, footDir, W, L, o = {}){
   const c = fp(bedPt[0], bedPt[1]), foot = unit(footDir[0], footDir[1]), lat = [-foot[1], foot[0]], rotAx = -Math.atan2(foot[1], foot[0]) + Math.PI;
   const rc = [c[0] + foot[0] * .4, c[1] + foot[1] * .4], rug = mkRugLux(S.rugB, o.rug ? o.rug[0] : 2.5, o.rug ? o.rug[1] : 1.9); rug.position.set(rc[0], 0, rc[1]); rug.rotation.y = -Math.atan2(foot[1], foot[0]); furnG.add(rug);
   addF(mkBedLux(W, L), c[0], c[1], foot, [W + .16, L + .1]);
-  if (!o.noNight) [-1, 1].forEach(s => { const p = [c[0] + lat[0] * s * (W / 2 + .36) - foot[0] * (L / 2 - .2), c[1] + lat[1] * s * (W / 2 + .36) - foot[1] * (L / 2 - .2)]; addF(mkNightLux(.5, .4, true), p[0], p[1], foot, [.5, .4]); });
+  if (!o.noNight) [-1, 1].filter(s => s !== o.skipNight).forEach(s => { const p = [c[0] + lat[0] * s * (W / 2 + .36) - foot[0] * (L / 2 - .2), c[1] + lat[1] * s * (W / 2 + .36) - foot[1] * (L / 2 - .2)]; addF(mkNightLux(.5, .4, true), p[0], p[1], foot, [.5, .4]); });
   if (o.bench){ const bo = L / 2 + (o.benchTight ? .252 : .42), p = [c[0] + foot[0] * bo, c[1] + foot[1] * bo]; const bn = mkBenchLux(W - .1, .42); addF(bn, p[0], p[1], foot, [W - .1, .42]); }
   return { c, foot, lat };
 }
 {
-  bedroom([489.5, 211.8], [-.969, -.245], 1.4, 2.0, { rug:[2.4, 1.8] });
+  bedroom([489.5, 211.8], [-.969, -.245], 1.4, 2.0, { rug:[2.4, 1.8], skipNight:-1 });
   bedroom([525.4, 250.5], [.2326, -.9726], 1.4, 2.0, { rug:[2.4, 1.8], bench:true });
   const m = bedroom([537.7, 370.1], [-.970, -.244], 1.8, 2.0, { noNight:true, bench:true, benchTight:true, rug:[2.7, 2.2] });
   [[563.2, 348.6], [549.7, 401.3]].forEach(p => { const q = fp(p[0], p[1]); addF(mkNightLux(.45, .36, true), q[0], q[1], [-.97, -.24], [.45, .36]); });
@@ -1311,11 +1311,11 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
 // corridor: runner rug, console with mirror and lamp, gallery wall, coat unit with coats and shoes
 {
   const rr = mkRugLux(S.rugR, .85, 3.4, 'runner'), rc = fp(503, 289.5); rr.position.set(rc[0], 0, rc[1]); rr.rotation.y = Math.atan2(.97, .24); furnG.add(rr);          // long side (local z) along the corridor
-  const w = wallPlace('korridor', [528, 316], .34);        // flat wall piece east of the free-standing column at plan (495, 308)
+  const w = wallPlace('korridor', [468.5, 313], .34);        // console on the entrance side of the free-standing column at plan (495, 308), with the full-length mirror to its right (west)
   { const g = new THREE.Group(); [-1, 1].forEach(s => [-1, 1].forEach(t => cyl(g, .014, .01, .78, s * .52, 0, t * .13, MAT.brass, 8))); soft(g, 1.2, .04, .32, .012, 0, .78, 0, S.counter); box(g, 1.1, .06, .28, 0, .7, 0, MAT.oak);
     tableLamp(g, -.4, .82, 0, .85, MAT.ceramic); vase(g, .3, .82, 0, .26, .07); flowers(g, .3, 1.06, 0, .8, .34); bookStack(g, .0, .82, .03, 3, .1); addF(g, w.x, w.z, w.n, [1.2, .34]);
-    const mr = mkRoundMirror(.45); place(mr, w.x - w.n[0] * .17, w.z - w.n[1] * .17, w.n, 1.25); furnG.add(mr); }
-  { const w2 = wallPlace('korridor', [520, 277], .02), kinds = [3, 0, 1]; kinds.forEach((k, i) => { const t = (i - 1) * .95; hang(k, .6, .8, w2.x + w2.ux * t, w2.z + w2.uz * t, w2.n, 1.2); }); }
+    const wm = wallPlace('korridor', [443, 312], .03), mr = mkMirror(.9, 2.2, std({ color:0xd2dadc, metalness:.2, roughness:.06, emissive:0x3d4749 })); place(mr, wm.x, wm.z, wm.n, .02); furnG.add(mr); }
+  { const w2 = wallPlace('korridor', [520, 277], .02), kinds = [0]; kinds.forEach((k, i) => { const t = 0; hang(k, .6, .8, w2.x + w2.ux * t, w2.z + w2.uz * t, w2.n, 1.2); }); }
   // wardrobe on the south face of Zimmer 01's wall: closed oak cabinets (left, three doors), open coat niche on the right with hat shelf, rail, jackets and shoes
   { const len = 1.95, c0 = fp(436.43, 244.6), nS = [-.2515, .970], gd = unit(.970, .2515), g = new THREE.Group(), H = 2.4, cw = 1.225, x0 = -len / 2 + cw, nx = len / 2 - x0, xc = (x0 + len / 2) / 2;
     box(g, cw, H - .08, .5, -len / 2 + cw / 2, .08, .25, MAT.oak); box(g, cw - .04, .08, .44, -len / 2 + cw / 2, 0, .23, MAT.black);                                         // closed cabinets on a dark plinth
