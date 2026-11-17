@@ -1137,9 +1137,7 @@ function mkKitchenRun(){
 }
 function mkIsland(){
   const g = new THREE.Group(), L = 2.4, Wd = .9;
-  soft(g, Wd, .86, L, .015, 0, .06, 0, MAT.oak); box(g, Wd - .06, .05, L - .06, 0, 0, 0, MAT.black);
-  soft(g, Wd + .32, .05, L + .04, .012, .16, .89, 0, KSTONE);
-  [-1, 1].forEach(s => box(g, Wd + .32, .9, .04, .16, 0, s * (L / 2 + .02), KSTONE));             // waterfall ends
+  box(g, 1.0, .94, L, .05, 0, 0, KSTONE);                  // one solid rectangular limestone block
   box(g, .58, .008, .52, -.02, .94, -.62, glassBlack);
   [[-.14, -.72], [.14, -.72], [-.14, -.52], [.14, -.52]].forEach(p => { const r = new THREE.Mesh(new THREE.TorusGeometry(.07, .004, 6, 24), MAT.steel); r.rotation.x = Math.PI / 2; r.position.set(p[0] - .02, .946, p[1]); g.add(r); });
   const bg = new THREE.Group(); bg.position.set(.14, .94, .62); bowl(bg, 0, 0, 0, .2, MAT.ceramicD, true); g.add(bg);
@@ -1151,8 +1149,7 @@ function mkIsland(){
 mkKitchenRun();
 {
   const c = fp(636.7, 278.3), g = mkIsland(), ax = unit(-.2467, .9691);
-  g.position.set(c[0], 0, c[1]); g.rotation.y = Math.atan2(ax[0], ax[1]); furnG.add(g); addObb(c[0], c[1], .9 + .32, 2.4, ax, 0);
-  [[657.2, 261.3], [654.0, 274.5], [650.5, 287.7]].forEach(p => { const q = fp(p[0], p[1]), s = mkStool(); place(s, q[0], q[1], [-.97, -.25]); furnG.add(s); });
+  g.position.set(c[0], 0, c[1]); g.rotation.y = Math.atan2(ax[0], ax[1]); furnG.add(g); addObb(c[0] + .05 * ax[1], c[1] - .05 * ax[0], 1.0, 2.4, ax, 0);
   [-.7, 0, .7].forEach(t => { const d2 = mkPendantDome(); d2.position.set(c[0] + ax[0] * t, 0, c[1] + ax[1] * t); furnG.add(d2); });
   const rk = mkRugLux(S.rugR, .62, 2.3, 'runner'), rc = fp(615.6, 273.4); rk.position.set(rc[0], 0, rc[1]); rk.rotation.y = -Math.atan2(ax[1], ax[0]); rk.rotation.y += Math.PI / 2; furnG.add(rk);
 }
