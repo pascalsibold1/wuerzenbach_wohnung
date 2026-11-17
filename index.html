@@ -1241,11 +1241,20 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
   // layout: shower cabin 80 x 80 in the north-west corner, WC close to the vanity, freestanding bath 170 x 80 along the window wall
   { const BS = VB ? 13.5 : 0, DD = 1.612 + (BS ? .594 : 0), O = fp(402.2 + BS * .2528, 367.9 - BS), U = [.99719, .07505], N = [-.07505, .99719], rp = (a, s) => [O[0] + U[0] * a + N[0] * s, O[1] + U[1] * a + N[1] * s];
     const rr = (w, h, r) => { const s = new THREE.Shape(), a = w / 2, b = h / 2; s.moveTo(-a + r, -b); s.lineTo(a - r, -b); s.quadraticCurveTo(a, -b, a, -b + r); s.lineTo(a, b - r); s.quadraticCurveTo(a, b, a - r, b); s.lineTo(-a + r, b); s.quadraticCurveTo(-a, b, -a, b - r); s.lineTo(-a, -b + r); s.quadraticCurveTo(-a, -b, -a + r, -b); return s; };
-    const mkFreeTub = (L, W, tapSide = false) => { const g = new THREE.Group(), ext = (shape, depth, y, mat) => { const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled:false, curveSegments:14 }); geo.rotateX(-Math.PI / 2); const m = new THREE.Mesh(geo, mat); m.position.y = y; m.castShadow = m.receiveShadow = true; g.add(m); return m; };
-      const hole = () => new THREE.Path(rr(L - .17, W - .17, .27).getPoints(14)), ring = (w, h, r, depth, y) => { const s = rr(w, h, r); s.holes.push(hole()); return ext(s, depth, y, MAT.ceramic); };
-      ext(rr(L - .06, W - .06, .33), .04, 0, MAT.black);                       // dark plinth
-      ext(rr(L - .04, W - .04, .34), .22, .04, MAT.ceramic);                   // solid lower part (tub floor at .26)
-      ring(L - .04, W - .04, .34, .28, .26); ring(L, W, .36, .05, .54);        // walls and rim with the opening
+    const TUBM = std({ color:0xffffff, roughness:.32, side:THREE.DoubleSide });
+    const mkFreeTub = (L, W, tapSide = false) => { const g = new THREE.Group(), NS = 96, NK = 16, nn = 3, HR = .58, YB = .03;       // rounded bowl: super-ellipse plan that tapers towards the bottom
+      const sup = (a, b, t) => { const c = Math.cos(t), s = Math.sin(t); return [a * Math.sign(c) * Math.pow(Math.abs(c), 2 / nn), b * Math.sign(s) * Math.pow(Math.abs(s), 2 / nn)]; };
+      const ringAt = (a, b, y) => { const r = []; for (let j = 0; j < NS; j++){ const p = sup(a, b, j / NS * Math.PI * 2); r.push([p[0], y, p[1]]); } return r; };
+      const skin = (rings, mat = TUBM) => { const pos = [], idx = []; rings.forEach(r => r.forEach(p => pos.push(p[0], p[1], p[2]))); for (let k = 0; k < rings.length - 1; k++) for (let j = 0; j < NS; j++){ const a = k * NS + j, b = k * NS + (j + 1) % NS, c = (k + 1) * NS + j, d = (k + 1) * NS + (j + 1) % NS; idx.push(a, c, b, b, c, d); }
+        const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals(); const m = new THREE.Mesh(geo, mat); m.castShadow = m.receiveShadow = true; g.add(m); return m; };
+      const prof = u => .72 + .28 * (1 - Math.pow(1 - u, 2.3));
+      const outer = []; for (let k = 0; k <= NK; k++){ const u = k / NK; outer.push(ringAt(L / 2 * prof(u), W / 2 * prof(u), YB + u * (HR - YB))); }
+      skin([ringAt(L / 2 * .72, W / 2 * .72, 0), outer[0]], MAT.black);                                           // dark plinth shadow gap
+      skin(outer);                                                                                                  // outer wall
+      const th = .045, a1 = L / 2 - th, b1 = W / 2 - th; skin([outer[NK], ringAt(a1, b1, HR)]);                      // rim
+      const YF = .22, inner = []; for (let k = 0; k <= NK; k++){ const u = 1 - k / NK, sc = .62 + .38 * (1 - Math.pow(1 - u, 2.3)); inner.push(ringAt(a1 * sc, b1 * sc, YF + u * (HR - YF))); }
+      skin(inner);                                                                                                  // inner wall
+      { const fr = inner[NK], pos = [0, YF, 0], idx = []; fr.forEach(p => pos.push(p[0], YF, p[2])); for (let j = 0; j < NS; j++) idx.push(0, 1 + j, 1 + (j + 1) % NS); const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals(); const m = new THREE.Mesh(geo, TUBM); m.receiveShadow = true; g.add(m); }   // tub floor
       if (tapSide){ const tz = W / 2 + .14; cyl(g, .014, .014, .8, 0, 0, tz, MAT.brass, 10); link(g, [0, .8, tz], [0, .86, tz - .1], .012, MAT.brass, 8); link(g, [0, .86, tz - .1], [0, .8, W / 2 - .2], .012, MAT.brass, 8); cyl(g, .05, .05, .01, 0, 0, tz, MAT.brass, 14); }          // floor-standing tap in the middle of the long side (window side)
       else { const tx = L / 2 + .13; cyl(g, .014, .014, .8, tx, 0, 0, MAT.brass, 10); link(g, [tx, .8, 0], [tx - .1, .86, 0], .012, MAT.brass, 8); link(g, [tx - .1, .86, 0], [L / 2 - .2, .8, 0], .012, MAT.brass, 8); cyl(g, .05, .05, .01, tx, 0, 0, MAT.brass, 14); }   // floor-standing tap at the foot end
       return g; };
@@ -1268,7 +1277,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     let c;
     if (VARIANT === 'C'){        // variant 3: open walk-in shower right next to the vanity with a single glass wall, bath turned slightly towards the front corner
       c = rp(1.55, .46); { const sh = mkWalkIn(.9, .9); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .9, .9, N); }
-      c = rp(.6472, 1.2995); { const th = 47 * Math.PI / 180, dl = [N[0] * Math.cos(th) - U[0] * Math.sin(th), N[1] * Math.cos(th) - U[1] * Math.sin(th)], t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], dl); furnG.add(t); addObb(c[0], c[1], 1.8, .85, dl); }
+      c = rp(.6306, 1.3176); { const th = 47 * Math.PI / 180, dl = [N[0] * Math.cos(th) - U[0] * Math.sin(th), N[1] * Math.cos(th) - U[1] * Math.sin(th)], t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], dl); furnG.add(t); addObb(c[0], c[1], 1.8, .85, dl); }
     } else if (VB){        // variant 2: shower in the north-west corner, bath towards the window with a gap to the wall, tap in the middle of its window side
       c = rp(.49, .46); { const sh = mkShowerCabin(.9, .9, -1); place(sh, c[0], c[1], N); sh.userData.snap = 1; furnG.add(sh); addObb(c[0], c[1], .9, .9, N); }
       c = rp(1.05, DD - .25 - .425); { const t = mkFreeTub(1.8, .85, true); place(t, c[0], c[1], N); furnG.add(t); addObb(c[0], c[1], 1.8, .85, N); }
