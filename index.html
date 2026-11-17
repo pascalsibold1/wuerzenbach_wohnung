@@ -1134,12 +1134,9 @@ function mkKitchenRun(){
   // oven tower: oven, steam oven, warming drawer
   tall(3.48, L - .02); face(3.5, L - .04, .95, .56, glassBlack); face(3.5, L - .04, 1.58, .5, glassBlack); face(3.5, L - .04, .35, .3, glassBlack); [.7, 1.55, 2.16].forEach(y => slab(3.5, L - .04, y, .014, MAT.chrome, .014, depth + .018));
   // worktop and splash back in sandy limestone (back against the wall), higher behind the hob
-  slab(.68, 3.48, .86, .04, KSTONE, depth + .03, 0); slab(.68, 3.48, .9, .6, KSTONE, .02, 0); slab(2.78, 3.48, 1.5, .85, KSTONE, .02, 0);
+  slab(.68, 3.48, .86, .04, KSTONE, depth + .03, 0); slab(.68, 3.48, .9, .6, KSTONE, .02, 0);
   // wall cabinets
-  [[.68, 1.28], [1.28, 2.18], [2.18, 2.78]].forEach(([s0, s1]) => { slab(s0 + .003, s1 - .003, 1.5, .7, MAT.oak, .35, .02); slab(s0 + .02, s1 - .02, 1.5, .012, ledMat, .02, .3); });
-  // hob with four burners and extractor hood
-  slab(2.84, 3.42, .9, .008, glassBlack, .52, .06); [[3.0, .17], [3.26, .17], [3.0, .39], [3.26, .39]].forEach(([s, ow]) => { const c = pw(s, ow), r = new THREE.Mesh(new THREE.TorusGeometry(.07, .004, 6, 24), KSTEEL); r.rotation.x = Math.PI / 2; r.position.set(c[0], .912, c[1]); furnG.add(r); });
-  slab(2.82, 3.44, 1.44, .09, glassBlack, .5, .02); slab(3.02, 3.24, 1.53, .9, glassBlack, .26, .02);
+  [[.68, 1.28], [1.28, 2.18], [2.18, 2.78], [2.78, 3.48]].forEach(([s0, s1]) => { slab(s0 + .003, s1 - .003, 1.5, .7, MAT.oak, .35, .02); slab(s0 + .02, s1 - .02, 1.5, .012, ledMat, .02, .3); });
   // sink with tap
   slab(1.36, 2.1, .9, .012, KSTEEL, .42, .08); slab(1.7, 1.76, .905, .004, MAT.black, .06, .26);
   { const c1 = pw(1.73, .075), c2 = pw(1.73, .23); link(furnG, [c1[0], .9, c1[1]], [c1[0], 1.2, c1[1]], .013, MAT.brass, 10); link(furnG, [c1[0], 1.2, c1[1]], [c2[0], 1.17, c2[1]], .011, MAT.brass, 8); const lv = pw(1.73, .075); box(furnG, .015, .015, .07, lv[0], 1.0, lv[1], MAT.brass, rotY); }
@@ -1152,10 +1149,22 @@ function mkKitchenRun(){
   addRingSegs([pt(0, 0), pt(L, 0), pt(L, depth + .03), pt(0, depth + .03)]);
 }
 
+function mkIsland(){
+  const g = new THREE.Group(), L = 2.4;
+  box(g, 1.0, .94, L, .05, 0, 0, KSTONE);                  // one solid rectangular limestone block with the hob
+  box(g, .58, .008, .52, -.02, .94, -.62, glassBlack);
+  [[-.14, -.72], [.14, -.72], [-.14, -.52], [.14, -.52]].forEach(p => { const r = new THREE.Mesh(new THREE.TorusGeometry(.07, .004, 6, 24), MAT.steel); r.rotation.x = Math.PI / 2; r.position.set(p[0] - .02, .946, p[1]); g.add(r); });
+  const bg = new THREE.Group(); bg.position.set(.14, .94, .62); bowl(bg, 0, 0, 0, .2, MAT.ceramicD, true); g.add(bg);
+  vase(g, .22, .94, .12, .2, .06); flowers(g, .22, 1.12, .12, .7, .3); candle(g, .1, .94, -.1, .09, .03);
+  return g;
+}
+
 /* ---------- place everything ---------- */
 mkKitchenRun();
 {
-  const ax = unit(-.2467, .9691);
+  const c = fp(636.7, 278.3), g = mkIsland(), ax = unit(-.2467, .9691);
+  g.position.set(c[0], 0, c[1]); g.rotation.y = Math.atan2(ax[0], ax[1]); furnG.add(g); addObb(c[0] + .05 * ax[1], c[1] - .05 * ax[0], 1.0, 2.4, ax, 0);
+  [-.7, 0, .7].forEach(t => { const d2 = mkPendantDome(); d2.position.set(c[0] + ax[0] * t, 0, c[1] + ax[1] * t); furnG.add(d2); });
   const rk = mkRugLux(S.rugR, .62, 2.3, 'runner'), rc = fp(615.6, 273.4); rk.position.set(rc[0], 0, rc[1]); rk.rotation.y = -Math.atan2(ax[1], ax[0]); rk.rotation.y += Math.PI / 2; furnG.add(rk);
 }
 // dining: rug, set table, six chairs, chandelier
