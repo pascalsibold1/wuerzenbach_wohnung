@@ -1200,8 +1200,8 @@ function bedroom(bedPt, footDir, W, L, o = {}){
   return { c, foot, lat };
 }
 {
-  bedroom([489.5, 211.8], [-.969, -.245], 1.4, 2.0, { rug:[2.4, 1.8], skipNight:-1 });
-  bedroom([525.4, 250.5], [.2326, -.9726], 1.4, 2.0, { rug:[2.4, 1.8], bench:true });
+  bedroom([489.5, 211.8], [-.969, -.245], 1.4, 2.0, { rug:[2.4, 1.8] });
+  bedroom([525.4, 250.5], [.2326, -.9726], 1.4, 2.0, { rug:[2.4, 1.8], bench:true, skipNight:-1 });
   const m = bedroom([537.7, 370.1], [-.970, -.244], 1.8, 2.0, { noNight:true, bench:true, benchTight:true, rug:[2.7, 2.2] });
   [[563.2, 348.6], [549.7, 401.3]].forEach(p => { const q = fp(p[0], p[1]); addF(mkNightLux(.45, .36, true), q[0], q[1], [-.97, -.24], [.45, .36]); });
   let q = fp(484.7, 154.9); addF(mkDesk(), q[0], q[1], [-.4215, .9068], [1.5, .76]);
