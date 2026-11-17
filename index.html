@@ -1324,9 +1324,7 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     box(g, nx, H, .02, xc, 0, .01, MAT.oak); box(g, .02, H, .5, len / 2 - .01, 0, .25, MAT.oak); box(g, nx, .04, .5, xc, H - .04, .25, MAT.oak); box(g, nx - .02, .04, .4, xc, 2.0, .22, MAT.oak);   // niche: back, side, top, hat shelf
     link(g, [x0 + .06, 1.78, .25], [len / 2 - .06, 1.78, .25], .012, MAT.brass, 8);                                                                                       // coat rail
     g.position.set(c0[0] + nS[0] * .02, 0, c0[1] + nS[1] * .02); g.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(g); addObb(c0[0] + nS[0] * .27, c0[1] + nS[1] * .27, len, .5, nS);
-    const cm = [S.sofa2, S.throwA, S.pillowB];
-    [xc - .2, xc, xc + .2].forEach((t, i) => { const j = new THREE.Group(); soft(j, .26, 1.0, .1, .04, 0, 0, 0, cm[i]); cyl(j, .01, .01, .12, 0, .98, 0, MAT.black, 6); j.position.set(c0[0] + gd[0] * t + nS[0] * .27, .78, c0[1] + gd[1] * t + nS[1] * .27); j.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(j); });
-    [xc - .15, xc + .15].forEach(t => { const j = new THREE.Group(); soft(j, .1, .08, .28, .035, -.07, 0, 0, S.leather); soft(j, .1, .08, .28, .035, .07, 0, 0, S.leather); j.position.set(c0[0] + gd[0] * t + nS[0] * .22, 0, c0[1] + gd[1] * t + nS[1] * .22); j.rotation.y = Math.atan2(nS[0], nS[1]); furnG.add(j); }); }
+  }
 }
 // terrace: stone dining table with black feet and black metal chairs, lounge parallel to it, both under the cover (no rug, plants, candles or glasses)
 {
