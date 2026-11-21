@@ -1263,10 +1263,9 @@ function mkWC(h = 1.0){ const g = new THREE.Group(); box(g, .4, h, .12, 0, 0, -.
 function mkVanity(w, bowls, d = .5, br = .2){ const g = new THREE.Group(); soft(g, w, .4, d, .012, 0, .45, 0, MAT.oak); box(g, w + .02, .04, d + .02, 0, .85, 0, MAT.oak); for (let i = 0; i < bowls; i++){ const x = bowls === 1 ? 0 : (i - .5) * (w * .5); soft(g, Math.min(.56, w * (bowls > 1 ? .38 : .5)), .14, d - .12, .045, x, .89, .04, MAT.ceramic); link(g, [x, .89, -(d / 2 - .05)], [x, 1.08, -(d / 2 - .05)], .011, MAT.brass, 8); link(g, [x, 1.08, -(d / 2 - .05)], [x, 1.07, -(d / 2 - .15)], .009, MAT.brass, 8); }
   const tx = bowls > 1 ? w / 2 - .2 : w / 2 - .09; box(g, bowls > 1 ? .2 : .13, .016, .14, tx, .89, 0, MAT.brass); candle(g, tx - (bowls > 1 ? .04 : .02), .906, 0, .08, .025); vase(g, tx + (bowls > 1 ? .06 : .02), .906, .02, .1, .03); return g; }
 function mkGuestShower(){       // walk-in shower from the wall towards the window: level tray, glass panel only half way (from the wall), rain head on the wall
-  const g = new THREE.Group(), FR = MAT.black, TL = 1.2, TW = .9;
-  box(g, TL, .025, TW, 0, 0, 0, clr(0xd8cbb3, .55));
-  box(g, .6, 2.0, .012, .3, 0, TW / 2 - .006, MAT.glass).material = MAT.glass;
-  box(g, .03, 2.05, .03, .015, 0, TW / 2 - .015, FR); box(g, .03, 2.05, .03, .585, 0, TW / 2 - .015, FR); box(g, .6, .03, .014, .3, 2.045, TW / 2 - .007, FR);
+  const g = new THREE.Group(), FR = MAT.black, GZ = .6;                                   // walk-in: no tray, just the tiled floor; glass 15 cm further towards the door
+  box(g, .6, 2.0, .012, .3, 0, GZ - .006, MAT.glass).material = MAT.glass;
+  box(g, .03, 2.05, .03, .015, 0, GZ - .015, FR); box(g, .03, 2.05, .03, .585, 0, GZ - .015, FR); box(g, .6, .03, .014, .3, 2.045, GZ - .007, FR);
   cyl(g, .13, .13, .012, .33, 2.1, 0, MAT.brass, 24); cyl(g, .012, .012, .27, .465, 2.1 - .135, 0, MAT.brass, 8).rotation.z = Math.PI / 2;
   box(g, .06, .2, .16, .57, 1.05, -.2, MAT.brass); box(g, .03, .3, .03, .585, .95, -.05, MAT.brass);
   return g;
@@ -1330,8 +1329,8 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     const ws = wallPlace('bad', [466.3 - .76 * 22.677, 372.5 - by], .04), pd = new THREE.Group();      // glass globe pendant centred above the vanity
     cyl(pd, .004, .004, CEIL - 2.1, 0, 2.1, 0, MAT.black, 4); cyl(pd, .022, .022, .05, 0, 2.19, 0, MAT.black, 10); sph(pd, .1, 0, 2.1, 0, MAT.glass, 1, 1, 1); sph(pd, .045, 0, 2.1, 0, MAT.emit, 1, 1, 1); pd.position.set(w.x + w.n[0] * .04, 0, w.z + w.n[1] * .04); pd.userData.snap = 0; furnG.add(pd); }
   // DU/WC
-  q = fp(306.5, 326.0); addF(mkGuestShower(), q[0], q[1], [1, 0], [1.2, .9]);
-  q = fp(329.2, 312.6); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
+  q = fp(306.5, 326.0); addF(mkGuestShower(), q[0], q[1], [1, 0], [1.2, 1.2]);
+  q = fp(332.6, 312.6); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
   q = fp(358.0, 309.2); addF(mkVanity(1.1, 1), q[0], q[1], [0, 1], [1.1, .5]).userData.snap = 1;
   q = fp(358.0, 308.0); { const m = mkMirrorArch(.8, .95); place(m, q[0], q[1] + .02, [0, 1], 1.2); m.userData.snap = 1; furnG.add(m); }
   q = fp(352, 329); { const mt = new THREE.Group(); soft(mt, .8, .03, .5, .015, 0, 0, 0, JUTE); mt.position.set(q[0], 0, q[1]); furnG.add(mt); }
