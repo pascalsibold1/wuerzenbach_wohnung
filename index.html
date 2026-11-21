@@ -1331,9 +1331,9 @@ function mkTowelRail(w){ const g = new THREE.Group(); [.5, .85, 1.2].forEach(y =
     cyl(pd, .004, .004, CEIL - 2.1, 0, 2.1, 0, MAT.black, 4); cyl(pd, .022, .022, .05, 0, 2.19, 0, MAT.black, 10); sph(pd, .1, 0, 2.1, 0, MAT.glass, 1, 1, 1); sph(pd, .045, 0, 2.1, 0, MAT.emit, 1, 1, 1); pd.position.set(w.x + w.n[0] * .04, 0, w.z + w.n[1] * .04); pd.userData.snap = 0; furnG.add(pd); }
   // DU/WC
   q = fp(306.5, 326.0); addF(mkGuestShower(), q[0], q[1], [1, 0], [1.2, .9]);
-  q = fp(343.8, 309.2); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
-  q = fp(361.3, 309.2); addF(mkVanity(.8, 1), q[0], q[1], [0, 1], [.8, .5]).userData.snap = 1;
-  q = fp(361.3, 308.0); { const m = mkMirrorArch(.8, .95); place(m, q[0], q[1] + .02, [0, 1], 1.2); m.userData.snap = 1; furnG.add(m); }
+  q = fp(329.2, 312.6); addF(mkWC(), q[0], q[1], [0, 1], [.4, .6]).userData.snap = 1;
+  q = fp(358.0, 309.2); addF(mkVanity(1.1, 1), q[0], q[1], [0, 1], [1.1, .5]).userData.snap = 1;
+  q = fp(358.0, 308.0); { const m = mkMirrorArch(.8, .95); place(m, q[0], q[1] + .02, [0, 1], 1.2); m.userData.snap = 1; furnG.add(m); }
   q = fp(352, 329); { const mt = new THREE.Group(); soft(mt, .8, .03, .5, .015, 0, 0, 0, JUTE); mt.position.set(q[0], 0, q[1]); furnG.add(mt); }
   // the small WC next to the Ankleide is used as a second Reduit (storage): shelving along its walls
   if (roomById.wc){ const room = roomById.wc, rr = rnd32(41), cardboard = clr(0xb89a72, .9), blue = clr(0x3b78b5, .4), green = clr(0x59a55b, .4), grey = clr(0x8c9094, .5);
